@@ -31,7 +31,7 @@ const Index = () => {
       </div>
 
       {/* City Selector */}
-      <div className="max-w-6xl mx-auto py-8">
+      <div className="max-w-6xl mx-auto py-8 bg-[#796d49]">
         <div className="text-center mb-8">
           <h2 className="text-white text-xl mb-6">اختر المدينة</h2>
           
