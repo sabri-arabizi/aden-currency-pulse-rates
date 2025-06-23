@@ -1,12 +1,8 @@
-
 import React, { useState } from 'react';
 import CurrencyTabs from '@/components/CurrencyTabs';
-
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState('عدن');
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-900 via-orange-800 to-red-900">
+  return <div className="min-h-screen bg-gradient-to-br from-orange-900 via-orange-800 to-red-900">
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-800 to-red-800 p-4 shadow-lg">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
@@ -40,49 +36,23 @@ const Index = () => {
           <h2 className="text-white text-xl mb-6">اختر المدينة</h2>
           
           <div className="flex justify-center gap-6 mb-8">
-            <button
-              onClick={() => setSelectedCity('صنعاء')}
-              className={`relative transition-all duration-300 ${
-                selectedCity === 'صنعاء' 
-                  ? 'transform scale-110' 
-                  : 'hover:transform hover:scale-105'
-              }`}
-            >
+            <button onClick={() => setSelectedCity('صنعاء')} className={`relative transition-all duration-300 ${selectedCity === 'صنعاء' ? 'transform scale-110' : 'hover:transform hover:scale-105'}`}>
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 shadow-xl">
-                <img 
-                  src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=300&fit=crop&crop=center"
-                  alt="صنعاء"
-                  className="w-full h-full object-cover"
-                />
+                <img alt="صنعاء" className="w-full h-full object-cover" src="/lovable-uploads/51456852-7651-4526-9445-d268f033ea3c.jpg" />
               </div>
               <div className="mt-3 text-white text-lg font-bold">صنعاء</div>
-              {selectedCity === 'صنعاء' && (
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-yellow-500 rounded-full"></div>
-              )}
+              {selectedCity === 'صنعاء' && <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-yellow-500 rounded-full"></div>}
             </button>
 
-            <button
-              onClick={() => setSelectedCity('عدن')}
-              className={`relative transition-all duration-300 ${
-                selectedCity === 'عدن' 
-                  ? 'transform scale-110' 
-                  : 'hover:transform hover:scale-105'
-              }`}
-            >
+            <button onClick={() => setSelectedCity('عدن')} className={`relative transition-all duration-300 ${selectedCity === 'عدن' ? 'transform scale-110' : 'hover:transform hover:scale-105'}`}>
               <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-yellow-500 shadow-xl">
-                <img 
-                  src="/lovable-uploads/dc542bf5-6d92-4cce-b8a7-c47ea7015f63.png"
-                  alt="عدن"
-                  className="w-full h-full object-cover"
-                />
+                <img alt="عدن" className="w-full h-full object-cover" src="/lovable-uploads/401073c5-56aa-4edd-b071-9494a6cc2ce0.jpg" />
               </div>
               <div className="mt-3 text-white text-lg font-bold">
                 عدن
                 <div className="h-1 bg-gradient-to-r from-blue-500 via-green-500 to-yellow-500 to-red-500 rounded-full mt-1 mx-auto w-12"></div>
               </div>
-              {selectedCity === 'عدن' && (
-                <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-yellow-500 rounded-full"></div>
-              )}
+              {selectedCity === 'عدن' && <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-yellow-500 rounded-full"></div>}
             </button>
           </div>
 
@@ -130,8 +100,6 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
