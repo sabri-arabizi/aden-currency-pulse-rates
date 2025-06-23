@@ -18,9 +18,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('Fetching SAR prices from ye-rial.com/aden/')
+    console.log('Fetching SAR and USD prices from ye-rial.com/aden/')
     
-    // Fetch data from ye-rial.com/aden/
+    // جلب البيانات من ye-rial.com/aden/
     const response = await fetch('https://ye-rial.com/aden/', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -32,10 +32,9 @@ serve(async (req) => {
     }
     
     const html = await response.text()
-    console.log('HTML fetched successfully, parsing SAR prices...')
+    console.log('HTML fetched successfully, parsing currency prices...')
     
-    // Parse SAR prices from HTML
-    // Looking for SAR price patterns in the HTML
+    // استخراج أسعار الريال السعودي
     const sarBuyMatch = html.match(/ريال\s*سعودي.*?شراء.*?(\d+\.?\d*)/i) || 
                        html.match(/سعودي.*?(\d+\.?\d*)/i) ||
                        html.match(/SAR.*?(\d+\.?\d*)/i)
@@ -43,33 +42,53 @@ serve(async (req) => {
     const sarSellMatch = html.match(/ريال\s*سعودي.*?بيع.*?(\d+\.?\d*)/i) || 
                         html.match(/سعودي.*?بيع.*?(\d+\.?\d*)/i)
     
-    let buyPrice = 675.0  // Default fallback
-    let sellPrice = 677.0 // Default fallback
+    // استخراج أسعار الدولار الأمريكي
+    const usdBuyMatch = html.match(/دولار.*?شراء.*?(\d+\.?\d*)/i) || 
+                       html.match(/USD.*?(\d+\.?\d*)/i) ||
+                       html.match(/أمريكي.*?(\d+\.?\d*)/i)
+    
+    const usdSellMatch = html.match(/دولار.*?بيع.*?(\d+\.?\d*)/i) || 
+                        html.match(/أمريكي.*?بيع.*?(\d+\.?\d*)/i)
+    
+    // أسعار افتراضية في حالة عدم وجود البيانات
+    let sarBuyPrice = 675.0
+    let sarSellPrice = 677.0
+    let usdBuyPrice = 2530.0
+    let usdSellPrice = 2540.0
     
     if (sarBuyMatch) {
-      buyPrice = parseFloat(sarBuyMatch[1])
+      sarBuyPrice = parseFloat(sarBuyMatch[1])
     }
-    
     if (sarSellMatch) {
-      sellPrice = parseFloat(sarSellMatch[1])
+      sarSellPrice = parseFloat(sarSellMatch[1])
     } else if (sarBuyMatch) {
-      // If only buy price found, estimate sell price
-      sellPrice = buyPrice + 2
+      sarSellPrice = sarBuyPrice + 2
     }
     
-    console.log(`Parsed SAR prices - Buy: ${buyPrice}, Sell: ${sellPrice}`)
+    if (usdBuyMatch) {
+      usdBuyPrice = parseFloat(usdBuyMatch[1])
+    }
+    if (usdSellMatch) {
+      usdSellPrice = parseFloat(usdSellMatch[1])
+    } else if (usdBuyMatch) {
+      usdSellPrice = usdBuyPrice + 10
+    }
     
-    // Update database for both cities
+    console.log(`Parsed SAR prices - Buy: ${sarBuyPrice}, Sell: ${sarSellPrice}`)
+    console.log(`Parsed USD prices - Buy: ${usdBuyPrice}, Sell: ${usdSellPrice}`)
+    
+    // تحديث قاعدة البيانات لكلا المدينتين
     const cities = ['عدن', 'صنعاء']
     
     for (const city of cities) {
-      const { error } = await supabaseClient
+      // تحديث الريال السعودي
+      const { error: sarError } = await supabaseClient
         .from('exchange_rates')
         .upsert({
           currency_code: 'SAR',
           currency_name: 'ريال سعودي',
-          buy_price: buyPrice,
-          sell_price: sellPrice,
+          buy_price: sarBuyPrice,
+          sell_price: sarSellPrice,
           flag_url: 'https://flagcdn.com/w40/sa.png',
           city: city,
           updated_at: new Date().toISOString()
@@ -77,18 +96,42 @@ serve(async (req) => {
           onConflict: 'currency_code,city'
         })
       
-      if (error) {
-        console.error(`Error updating ${city}:`, error)
+      // تحديث الدولار الأمريكي
+      const { error: usdError } = await supabaseClient
+        .from('exchange_rates')
+        .upsert({
+          currency_code: 'USD',
+          currency_name: 'دولار أمريكي',
+          buy_price: usdBuyPrice,
+          sell_price: usdSellPrice,
+          flag_url: 'https://flagcdn.com/w40/us.png',
+          city: city,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'currency_code,city'
+        })
+      
+      if (sarError) {
+        console.error(`Error updating SAR for ${city}:`, sarError)
       } else {
         console.log(`Successfully updated SAR prices for ${city}`)
+      }
+      
+      if (usdError) {
+        console.error(`Error updating USD for ${city}:`, usdError)
+      } else {
+        console.log(`Successfully updated USD prices for ${city}`)
       }
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'SAR prices updated successfully',
-        prices: { buy: buyPrice, sell: sellPrice },
+        message: 'SAR and USD prices updated successfully',
+        prices: { 
+          sar: { buy: sarBuyPrice, sell: sarSellPrice },
+          usd: { buy: usdBuyPrice, sell: usdSellPrice }
+        },
         source: 'ye-rial.com/aden'
       }),
       { 
@@ -98,7 +141,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error updating SAR prices:', error)
+    console.error('Error updating SAR and USD prices:', error)
     return new Response(
       JSON.stringify({ 
         success: false, 

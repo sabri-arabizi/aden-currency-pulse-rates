@@ -18,10 +18,10 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('Fetching AED prices from almashhadalaraby.com')
+    console.log('Fetching EGP prices from khbr.me/rate.html')
     
-    // جلب البيانات من almashhadalaraby.com
-    const response = await fetch('https://almashhadalaraby.com/news/514858', {
+    // جلب البيانات من khbr.me/rate.html
+    const response = await fetch('https://www.khbr.me/rate.html', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       }
@@ -32,34 +32,34 @@ serve(async (req) => {
     }
     
     const html = await response.text()
-    console.log('HTML fetched successfully, parsing AED prices...')
+    console.log('HTML fetched successfully, parsing EGP prices...')
     
-    // استخراج أسعار الدرهم الإماراتي
-    const aedBuyMatch = html.match(/درهم.*?إمارات.*?شراء.*?(\d+\.?\d*)/i) || 
-                       html.match(/إمارات.*?(\d+\.?\d*)/i) ||
-                       html.match(/AED.*?(\d+\.?\d*)/i) ||
-                       html.match(/dirham.*?(\d+\.?\d*)/i)
+    // استخراج أسعار الجنيه المصري
+    const egpBuyMatch = html.match(/جنيه.*?مصري.*?شراء.*?(\d+\.?\d*)/i) || 
+                       html.match(/مصري.*?(\d+\.?\d*)/i) ||
+                       html.match(/EGP.*?(\d+\.?\d*)/i) ||
+                       html.match(/egyptian.*?(\d+\.?\d*)/i)
     
-    const aedSellMatch = html.match(/درهم.*?إمارات.*?بيع.*?(\d+\.?\d*)/i) || 
-                        html.match(/إمارات.*?بيع.*?(\d+\.?\d*)/i)
+    const egpSellMatch = html.match(/جنيه.*?مصري.*?بيع.*?(\d+\.?\d*)/i) || 
+                        html.match(/مصري.*?بيع.*?(\d+\.?\d*)/i)
     
-    let buyPrice = 690.0  // سعر افتراضي
-    let sellPrice = 694.0 // سعر افتراضي
+    let buyPrice = 50.0  // سعر افتراضي
+    let sellPrice = 52.0 // سعر افتراضي
     
-    if (aedBuyMatch) {
-      buyPrice = parseFloat(aedBuyMatch[1])
+    if (egpBuyMatch) {
+      buyPrice = parseFloat(egpBuyMatch[1])
     }
     
-    if (aedSellMatch) {
-      sellPrice = parseFloat(aedSellMatch[1])
-    } else if (aedBuyMatch) {
+    if (egpSellMatch) {
+      sellPrice = parseFloat(egpSellMatch[1])
+    } else if (egpBuyMatch) {
       // إذا تم العثور على سعر الشراء فقط، نقدر سعر البيع
-      sellPrice = buyPrice + 4
+      sellPrice = buyPrice + 2
     }
     
-    // إذا لم يتم العثور على أسعار محددة للدرهم، نحاول الحصول على سعر الدولار وتحويله
-    if (!aedBuyMatch && !aedSellMatch) {
-      console.log('No direct AED prices found, trying to calculate from USD...')
+    // إذا لم يتم العثور على أسعار محددة للجنيه، نحاول الحصول على سعر الدولار وتحويله
+    if (!egpBuyMatch && !egpSellMatch) {
+      console.log('No direct EGP prices found, trying to calculate from USD...')
       
       // الحصول على سعر الدولار الحالي من قاعدة البيانات
       const { data: usdData } = await supabaseClient
@@ -70,13 +70,13 @@ serve(async (req) => {
         .single()
       
       if (usdData) {
-        // الدرهم إلى الدولار تقريباً 3.67، لذلك الدرهم إلى الريال = الدولار إلى الريال / 3.67
-        buyPrice = Math.round(usdData.buy_price / 3.67)
-        sellPrice = Math.round(usdData.sell_price / 3.67)
+        // الجنيه إلى الدولار تقريباً 0.02، لذلك الجنيه إلى الريال = الدولار إلى الريال * 0.02
+        buyPrice = Math.round(usdData.buy_price * 0.02)
+        sellPrice = Math.round(usdData.sell_price * 0.02)
       }
     }
     
-    console.log(`Parsed AED prices - Buy: ${buyPrice}, Sell: ${sellPrice}`)
+    console.log(`Parsed EGP prices - Buy: ${buyPrice}, Sell: ${sellPrice}`)
     
     // تحديث قاعدة البيانات لكلا المدينتين
     const cities = ['عدن', 'صنعاء']
@@ -85,11 +85,11 @@ serve(async (req) => {
       const { error } = await supabaseClient
         .from('exchange_rates')
         .upsert({
-          currency_code: 'AED',
-          currency_name: 'درهم إماراتي',
+          currency_code: 'EGP',
+          currency_name: 'جنيه مصري',
           buy_price: buyPrice,
           sell_price: sellPrice,
-          flag_url: 'https://flagcdn.com/w40/ae.png',
+          flag_url: 'https://flagcdn.com/w40/eg.png',
           city: city,
           updated_at: new Date().toISOString()
         }, {
@@ -99,16 +99,16 @@ serve(async (req) => {
       if (error) {
         console.error(`Error updating ${city}:`, error)
       } else {
-        console.log(`Successfully updated AED prices for ${city}`)
+        console.log(`Successfully updated EGP prices for ${city}`)
       }
     }
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'AED prices updated successfully',
+        message: 'EGP prices updated successfully',
         prices: { buy: buyPrice, sell: sellPrice },
-        source: 'almashhadalaraby.com'
+        source: 'khbr.me/rate.html'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -117,7 +117,7 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('Error updating AED prices:', error)
+    console.error('Error updating EGP prices:', error)
     return new Response(
       JSON.stringify({ 
         success: false, 

@@ -32,17 +32,21 @@ export const useExchangeRates = (selectedCity: string) => {
 
       console.log('Exchange rates fetched:', data);
       
-      // Sort currencies with SAR first, then AED, then others alphabetically
+      // ترتيب العملات: SAR, USD, AED, EGP ثم باقي العملات
       const sortedData = data?.sort((a, b) => {
-        if (a.currency_code === 'SAR') return -1;
-        if (b.currency_code === 'SAR') return 1;
-        if (a.currency_code === 'AED') return -1;
-        if (b.currency_code === 'AED') return 1;
+        const priorityOrder = { 'SAR': 1, 'USD': 2, 'AED': 3, 'EGP': 4 };
+        const aPriority = priorityOrder[a.currency_code as keyof typeof priorityOrder] || 999;
+        const bPriority = priorityOrder[b.currency_code as keyof typeof priorityOrder] || 999;
+        
+        if (aPriority !== bPriority) {
+          return aPriority - bPriority;
+        }
+        
         return a.currency_code.localeCompare(b.currency_code);
       });
 
       return sortedData || [];
     },
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    refetchInterval: 2 * 60 * 1000, // تحديث كل دقيقتين
   });
 };
