@@ -4,7 +4,7 @@ const Index = () => {
   const [selectedCity, setSelectedCity] = useState('عدن');
   return <div className="min-h-screen bg-gradient-to-br from-orange-900 via-orange-800 to-red-900">
       {/* Header */}
-      <div className="bg-gradient-to-r from-orange-800 to-red-800 p-4 shadow-lg">
+      <div className="bg-gradient-to-r from-orange-800 to-red-800 p-4 shadow-lg bg-[#04c904]">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center shadow-lg">
