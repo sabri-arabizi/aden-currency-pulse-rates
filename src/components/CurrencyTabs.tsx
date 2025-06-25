@@ -6,6 +6,7 @@ import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { useGoldPrices } from '@/hooks/useGoldPrices';
 import { CurrencyCard } from './CurrencyCard';
 import { GoldCard } from './GoldCard';
+import ManualRefreshButton from './ManualRefreshButton';
 
 interface CurrencyTabsProps {
   selectedCity: string;
@@ -39,6 +40,11 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
 
   return (
     <div className="w-full max-w-7xl mx-auto">
+      {/* Manual Refresh Button */}
+      <div className="flex justify-center mb-8">
+        <ManualRefreshButton />
+      </div>
+
       {/* Tab Headers */}
       <div className="flex bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden mb-8 border border-white/20 shadow-xl">
         <button
