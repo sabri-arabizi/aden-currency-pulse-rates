@@ -23,47 +23,16 @@ const ManualRefreshButton = () => {
         body: { manual: true }
       });
 
-      // Update EGP to the specified rates
-      const egpUpdates = [
-        { city: 'عدن', buy_price: 79.24, sell_price: 80.00 },
-        { city: 'صنعاء', buy_price: 79.24, sell_price: 80.00 }
-      ];
+      // Update EGP prices from the new source
+      const egpResponse = await supabase.functions.invoke('update-egp-from-2dec', {
+        body: { manual: true }
+      });
 
-      for (const update of egpUpdates) {
-        await supabase
-          .from('exchange_rates')
-          .update({
-            buy_price: update.buy_price,
-            sell_price: update.sell_price,
-            updated_at: new Date().toISOString()
-          })
-          .eq('currency_code', 'EGP')
-          .eq('city', update.city);
-      }
-
-      // Update Sanaa rates to match Aden (previous values)
-      const { data: adenRates } = await supabase
-        .from('exchange_rates')
-        .select('*')
-        .eq('city', 'عدن');
-
-      if (adenRates) {
-        for (const rate of adenRates) {
-          await supabase
-            .from('exchange_rates')
-            .update({
-              buy_price: rate.buy_price,
-              sell_price: rate.sell_price,
-              updated_at: new Date().toISOString()
-            })
-            .eq('currency_code', rate.currency_code)
-            .eq('city', 'صنعاء');
-        }
-      }
+      console.log('نتائج التحديث:', { sarResponse, aedResponse, egpResponse });
 
       toast({
         title: "تم التحديث بنجاح ✅",
-        description: "تم تحديث أسعار جميع العملات",
+        description: "تم تحديث أسعار جميع العملات من المصادر المحدثة",
       });
 
     } catch (error) {
