@@ -14,8 +14,20 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
   };
 
   const formatPrice = (price: number) => {
-    // استخدام الأرقام الإنجليزية
-    return new Intl.NumberFormat('en-US').format(price);
+    // تحسين عرض الأرقام مع دعم الخانات العشرية للدولار
+    if (rate.currency_code === 'USD') {
+      // عرض 4 خانات عشرية للدولار الأمريكي
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 4
+      }).format(price);
+    } else {
+      // عرض خانتين عشريتين للعملات الأخرى
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }).format(price);
+    }
   };
 
   const getCurrencyGradient = (currencyCode: string) => {
@@ -26,6 +38,21 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
       'EGP': 'from-yellow-400 to-orange-600'
     };
     return gradients[currencyCode as keyof typeof gradients] || 'from-gray-400 to-gray-600';
+  };
+
+  const getLastUpdateTime = () => {
+    const updateTime = new Date(rate.updated_at);
+    const now = new Date();
+    const diffMinutes = Math.floor((now.getTime() - updateTime.getTime()) / (1000 * 60));
+    
+    if (diffMinutes < 1) {
+      return 'الآن';
+    } else if (diffMinutes < 60) {
+      return `منذ ${diffMinutes} دقيقة`;
+    } else {
+      const diffHours = Math.floor(diffMinutes / 60);
+      return `منذ ${diffHours} ساعة`;
+    }
   };
 
   return (
@@ -60,7 +87,7 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
 
           {isAutoUpdated(rate.currency_code) && (
             <div className="flex items-center text-xs text-green-600 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
-              <Clock size={12} className="ml-1 animate-spin" />
+              <Clock size={12} className="ml-1" />
               <span className="font-medium">تلقائي</span>
             </div>
           )}
@@ -94,7 +121,10 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
         
         <div className="mt-5 text-center">
           <div className="text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-lg border">
-            آخر تحديث: {new Date(rate.updated_at).toLocaleString('en-US', {
+            آخر تحديث: {getLastUpdateTime()}
+          </div>
+          <div className="text-xs text-gray-400 mt-1">
+            {new Date(rate.updated_at).toLocaleString('ar-SA', {
               hour: '2-digit',
               minute: '2-digit',
               day: '2-digit',
