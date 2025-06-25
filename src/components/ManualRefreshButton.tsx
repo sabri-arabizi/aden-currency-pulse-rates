@@ -13,6 +13,8 @@ const ManualRefreshButton = () => {
     setIsRefreshing(true);
     
     try {
+      console.log('🔄 بدء التحديث الشامل لجميع الأسعار...');
+
       // Update SAR and USD prices
       const sarResponse = await supabase.functions.invoke('update-sar-prices', {
         body: { manual: true }
@@ -28,19 +30,26 @@ const ManualRefreshButton = () => {
         body: { manual: true }
       });
 
-      console.log('نتائج التحديث:', { sarResponse, aedResponse, egpResponse });
+      // Update Gold prices
+      const goldResponse = await supabase.functions.invoke('update-gold-prices', {
+        body: { manual: true }
+      });
+
+      console.log('نتائج التحديث الشامل:', { sarResponse, aedResponse, egpResponse, goldResponse });
 
       toast({
-        title: "تم التحديث بنجاح ✅",
-        description: "تم تحديث أسعار جميع العملات من المصادر المحدثة",
+        title: "تم التحديث الشامل بنجاح ✅",
+        description: "تم تحديث أسعار جميع العملات والذهب من المصادر المحدثة",
+        duration: 5000,
       });
 
     } catch (error) {
-      console.error('Error refreshing rates:', error);
+      console.error('Error refreshing all rates:', error);
       toast({
-        title: "خطأ في التحديث ❌",
-        description: "حدث خطأ أثناء تحديث الأسعار",
+        title: "خطأ في التحديث الشامل ❌",
+        description: "حدث خطأ أثناء تحديث بعض الأسعار",
         variant: "destructive",
+        duration: 5000,
       });
     } finally {
       setIsRefreshing(false);
@@ -57,7 +66,7 @@ const ManualRefreshButton = () => {
         size={20} 
         className={`ml-2 ${isRefreshing ? 'animate-spin' : ''}`} 
       />
-      {isRefreshing ? 'جاري التحديث...' : 'تحديث الأسعار يدوياً'}
+      {isRefreshing ? 'جاري التحديث الشامل...' : 'تحديث جميع الأسعار'}
     </Button>
   );
 };

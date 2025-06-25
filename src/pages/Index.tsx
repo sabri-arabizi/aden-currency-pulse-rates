@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import CurrencyTabs from '@/components/CurrencyTabs';
 import SarUpdateButton from '@/components/SarUpdateButton';
+import GoldUpdateButton from '@/components/GoldUpdateButton';
 import { Link } from 'react-router-dom';
 
 const Index = () => {
@@ -23,8 +23,9 @@ const Index = () => {
           </div>
           
           <div className="flex gap-3 items-center">
-            {/* زر SAR للتحديث اليدوي */}
+            {/* أزرار التحديث اليدوي */}
             <SarUpdateButton />
+            <GoldUpdateButton />
             
             <div className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-xl text-sm font-medium border border-white/30 shadow-lg">
               USD
