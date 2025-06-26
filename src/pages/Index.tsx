@@ -8,7 +8,7 @@ const Index = () => {
   return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-0 rounded bg-amber-900">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4 md:p-6 shadow-2xl bg-[#f45713]">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 bg-[#84f384]/[0.37] rounded-full">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-2xl">
               <span className="text-white font-bold text-xl md:text-2xl">₹</span>
@@ -69,7 +69,7 @@ const Index = () => {
       </div>
 
       {/* Bottom Navigation - مُحسن للهواتف */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-white/20 px-4 py-3 md:py-4 shadow-2xl safe-area-inset-bottom">
+      <div className="fixed bottom-0 left-0 right-0 backdrop-blur-md border-t border-white/20 px-4 py-3 md:py-4 shadow-2xl safe-area-inset-bottom bg-[#010102]/[0.37]">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
             <Link to="/contact" className="flex flex-col items-center gap-1 md:gap-2 text-purple-600 hover:text-purple-700 transition-all duration-300 group p-2">
