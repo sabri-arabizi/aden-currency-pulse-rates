@@ -9,13 +9,14 @@ export interface GoldPrice {
   sell_price: number;
   city: string;
   updated_at: string;
+  created_at: string;
 }
 
 export const useGoldPrices = (selectedCity: string) => {
   return useQuery({
     queryKey: ['gold-prices', selectedCity],
     queryFn: async () => {
-      console.log('Fetching gold prices for city:', selectedCity);
+      console.log('جاري جلب أسعار الذهب للمدينة:', selectedCity);
       
       const { data, error } = await supabase
         .from('gold_prices')
@@ -24,13 +25,14 @@ export const useGoldPrices = (selectedCity: string) => {
         .order('type', { ascending: true });
 
       if (error) {
-        console.error('Error fetching gold prices:', error);
+        console.error('خطأ في جلب أسعار الذهب:', error);
         throw error;
       }
 
-      console.log('Gold prices fetched:', data);
-      return data || [];
+      console.log('تم جلب أسعار الذهب بنجاح:', data);
+      return (data || []) as GoldPrice[];
     },
-    refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
+    refetchInterval: 2 * 60 * 1000, // تحديث كل دقيقتين
+    staleTime: 1 * 60 * 1000, // البيانات تعتبر قديمة بعد دقيقة واحدة
   });
 };

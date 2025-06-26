@@ -6,7 +6,7 @@ import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { useGoldPrices } from '@/hooks/useGoldPrices';
 import { CurrencyCard } from './CurrencyCard';
 import { GoldCard } from './GoldCard';
-import SanaaExchangeTable from './SanaaExchangeTable';
+import SanaaCurrencyCards from './SanaaCurrencyCards';
 import ManualRefreshButton from './ManualRefreshButton';
 
 interface CurrencyTabsProps {
@@ -51,13 +51,6 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
         <ManualRefreshButton />
       </div>
 
-      {/* عرض خاص لمدينة صنعاء */}
-      {selectedCity === 'صنعاء' && (
-        <div className="mb-8">
-          <SanaaExchangeTable rates={exchangeRates || []} />
-        </div>
-      )}
-
       {/* Tab Headers */}
       <div className="flex bg-white/10 backdrop-blur-sm rounded-2xl overflow-hidden mb-8 border border-white/20 shadow-xl">
         <button 
@@ -86,19 +79,47 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
 
       {/* Tab Content */}
       <div className="min-h-[500px]">
-        {activeTab === 'currencies' && selectedCity === 'عدن' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {exchangeRates?.map(rate => 
-              <CurrencyCard key={`${rate.currency_code}-${rate.city}`} rate={rate} />
+        {activeTab === 'currencies' && (
+          <>
+            {selectedCity === 'صنعاء' && (
+              <div className="mb-8">
+                <div className="text-center mb-6">
+                  <h2 className="text-white text-2xl font-bold mb-2 flex items-center justify-center gap-3">
+                    <DollarSign size={28} />
+                    أسعار الصرف - مدينة صنعاء
+                  </h2>
+                  <p className="text-white/80 text-sm">المصدر: khbr.me/rate.html</p>
+                </div>
+                <SanaaCurrencyCards rates={exchangeRates || []} />
+              </div>
             )}
-          </div>
+            
+            {selectedCity === 'عدن' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {exchangeRates?.map(rate => 
+                  <CurrencyCard key={`${rate.currency_code}-${rate.city}`} rate={rate} />
+                )}
+              </div>
+            )}
+          </>
         )}
 
         {activeTab === 'gold' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {goldPrices?.map(gold => 
-              <GoldCard key={`${gold.type}-${gold.city}`} gold={gold} />
-            )}
+          <div>
+            <div className="text-center mb-6">
+              <h2 className="text-white text-2xl font-bold mb-2 flex items-center justify-center gap-3">
+                <Coins size={28} />
+                أسعار الذهب - {selectedCity}
+              </h2>
+              <p className="text-white/80 text-sm">
+                {selectedCity === 'عدن' ? 'المصدر: soutalmukawama.com' : 'المصدر: yemennownews.com'}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {goldPrices?.map(gold => 
+                <GoldCard key={`${gold.type}-${gold.city}`} gold={gold} />
+              )}
+            </div>
           </div>
         )}
       </div>
@@ -107,7 +128,7 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
       <div className="mt-10 text-center">
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl">
           <div className="text-white/90 text-lg font-medium mb-4">
-            📊 نظام التحديث المحسن - آخر تحديث: {new Date().toLocaleString('ar-SA', {
+            📊 نظام التحديث اليدوي - آخر تحديث: {new Date().toLocaleString('ar-SA', {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit',
