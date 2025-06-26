@@ -5,7 +5,7 @@ import GoldUpdateButton from '@/components/GoldUpdateButton';
 import { Link } from 'react-router-dom';
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState('عدن');
-  return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-0 rounded bg-[#09fa09]">
+  return <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 py-0 rounded bg-amber-900">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 shadow-2xl">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
