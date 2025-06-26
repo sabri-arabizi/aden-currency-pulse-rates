@@ -18,9 +18,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('🚀 بدء تحديث أسعار SAR و USD من ye-rial.com/aden')
+    console.log('🚀 بدء تحديث أسعار SAR و USD المحسن من ye-rial.com/aden')
 
-    // جلب البيانات من الموقع
+    // جلب البيانات من الموقع مع headers محسنة
     const response = await fetch('https://ye-rial.com/aden/', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -28,7 +28,10 @@ serve(async (req) => {
         'Accept-Language': 'ar,en-US;q=0.5',
         'Accept-Encoding': 'gzip, deflate, br',
         'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
+        'Pragma': 'no-cache',
+        'Referer': 'https://ye-rial.com/',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
       }
     })
 
@@ -37,10 +40,10 @@ serve(async (req) => {
     }
 
     const html = await response.text()
-    console.log('✅ تم جلب HTML بنجاح، بدء تحليل الأسعار...')
+    console.log('✅ تم جلب HTML بنجاح، بدء التحليل المحسن للأسعار...')
 
-    // دالة تنظيف الأرقام العربية والإنجليزية
-    const cleanNumber = (numStr: string): number => {
+    // دالة تنظيف وتحويل الأرقام مع دعم الخانات العشرية
+    const cleanAndParseNumber = (numStr: string): number => {
       if (!numStr) return 0;
       
       // تحويل الأرقام العربية إلى إنجليزية
@@ -54,21 +57,34 @@ serve(async (req) => {
       return isNaN(number) ? 0 : number;
     };
 
-    // البحث عن أسعار الريال السعودي بطرق متعددة
+    // البحث المحسن عن أسعار الريال السعودي مع دعم الجداول والنماذج المختلفة
     const sarPatterns = [
-      // نماذج متنوعة للبحث عن الريال السعودي
-      /<td[^>]*>.*?(?:ريال\s*سعودي|سعودي|SAR).*?<\/td>\s*<td[^>]*>.*?(\d+(?:[,.]?\d+)*)\s*<\/td>\s*<td[^>]*>.*?(\d+(?:[,.]?\d+)*)\s*<\/td>/gi,
-      /(?:ريال\s*سعودي|سعودي|SAR).*?شراء.*?(\d+(?:[,.]?\d+)*).*?بيع.*?(\d+(?:[,.]?\d+)*)/gi,
-      /(?:ريال\s*سعودي|سعودي|SAR).*?(\d+(?:[,.]?\d+)*).*?(\d+(?:[,.]?\d+)*)/gi,
-      /<tr[^>]*>.*?(?:ريال\s*سعودي|سعودي|SAR).*?<td[^>]*>.*?(\d+(?:[,.]?\d+)*).*?<\/td>.*?<td[^>]*>.*?(\d+(?:[,.]?\d+)*).*?<\/td>/gi
+      // البحث في الجداول المنظمة
+      /<tr[^>]*>[\s\S]*?(?:ريال\s*سعودي|سعودي|SAR)[\s\S]*?<td[^>]*>\s*(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*<\/td>\s*<td[^>]*>\s*(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*<\/td>[\s\S]*?<\/tr>/gi,
+      
+      // البحث في divs أو spans
+      /<div[^>]*>[\s\S]*?(?:ريال\s*سعودي|سعودي|SAR)[\s\S]*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*[\s\S]*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*[\s\S]*?<\/div>/gi,
+      
+      // البحث العام مع كلمات الشراء والبيع
+      /(?:ريال\s*سعودي|سعودي|SAR)[\s\S]{0,100}?شراء[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]{0,100}?بيع[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi,
+      
+      // البحث المعكوس للشراء والبيع
+      /(?:ريال\s*سعودي|سعودي|SAR)[\s\S]{0,100}?بيع[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]{0,100}?شراء[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi
     ];
 
-    // البحث عن أسعار الدولار الأمريكي
+    // البحث المحسن عن أسعار الدولار الأمريكي
     const usdPatterns = [
-      /<td[^>]*>.*?(?:دولار\s*أمريكي|دولار|USD).*?<\/td>\s*<td[^>]*>.*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*<\/td>\s*<td[^>]*>.*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*<\/td>/gi,
-      /(?:دولار\s*أمريكي|دولار|USD).*?شراء.*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?).*?بيع.*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi,
-      /(?:دولار\s*أمريكي|دولار|USD).*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?).*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi,
-      /<tr[^>]*>.*?(?:دولار\s*أمريكي|دولار|USD).*?<td[^>]*>.*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?).*?<\/td>.*?<td[^>]*>.*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?).*?<\/td>/gi
+      // البحث في الجداول المنظمة
+      /<tr[^>]*>[\s\S]*?(?:دولار\s*أمريكي|دولار|USD)[\s\S]*?<td[^>]*>\s*(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*<\/td>\s*<td[^>]*>\s*(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*<\/td>[\s\S]*?<\/tr>/gi,
+      
+      // البحث في divs أو spans  
+      /<div[^>]*>[\s\S]*?(?:دولار\s*أمريكي|دولار|USD)[\s\S]*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*[\s\S]*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*[\s\S]*?<\/div>/gi,
+      
+      // البحث العام مع كلمات الشراء والبيع
+      /(?:دولار\s*أمريكي|دولار|USD)[\s\S]{0,100}?شراء[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]{0,100}?بيع[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi,
+      
+      // البحث المعكوس للشراء والبيع
+      /(?:دولار\s*أمريكي|دولار|USD)[\s\S]{0,100}?بيع[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]{0,100}?شراء[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi
     ];
 
     let sarBuyPrice = 0, sarSellPrice = 0;
@@ -76,28 +92,42 @@ serve(async (req) => {
 
     // البحث عن أسعار الريال السعودي
     for (const pattern of sarPatterns) {
-      const match = pattern.exec(html);
-      if (match && match[1] && match[2]) {
-        sarBuyPrice = cleanNumber(match[1]);
-        sarSellPrice = cleanNumber(match[2]);
-        if (sarBuyPrice > 0 && sarSellPrice > 0) {
-          console.log(`🏦 تم العثور على أسعار SAR: شراء ${sarBuyPrice}, بيع ${sarSellPrice}`);
-          break;
+      const matches = [...html.matchAll(pattern)];
+      for (const match of matches) {
+        if (match && match[1] && match[2]) {
+          const price1 = cleanAndParseNumber(match[1]);
+          const price2 = cleanAndParseNumber(match[2]);
+          
+          if (price1 > 0 && price2 > 0 && price1 < 1000 && price2 < 1000) {
+            // تحديد أيهما الشراء وأيهما البيع (عادة الشراء أقل من البيع)
+            sarBuyPrice = Math.min(price1, price2);
+            sarSellPrice = Math.max(price1, price2);
+            console.log(`🏦 تم العثور على أسعار SAR: شراء ${sarBuyPrice}, بيع ${sarSellPrice}`);
+            break;
+          }
         }
       }
+      if (sarBuyPrice > 0 && sarSellPrice > 0) break;
     }
 
     // البحث عن أسعار الدولار الأمريكي
     for (const pattern of usdPatterns) {
-      const match = pattern.exec(html);
-      if (match && match[1] && match[2]) {
-        usdBuyPrice = cleanNumber(match[1]);
-        usdSellPrice = cleanNumber(match[2]);
-        if (usdBuyPrice > 0 && usdSellPrice > 0) {
-          console.log(`💵 تم العثور على أسعار USD: شراء ${usdBuyPrice}, بيع ${usdSellPrice}`);
-          break;
+      const matches = [...html.matchAll(pattern)];
+      for (const match of matches) {
+        if (match && match[1] && match[2]) {
+          const price1 = cleanAndParseNumber(match[1]);
+          const price2 = cleanAndParseNumber(match[2]);
+          
+          if (price1 > 0 && price2 > 0 && price1 < 10000 && price2 < 10000) {
+            // تحديد أيهما الشراء وأيهما البيع (عادة الشراء أقل من البيع)
+            usdBuyPrice = Math.min(price1, price2);
+            usdSellPrice = Math.max(price1, price2);
+            console.log(`💵 تم العثور على أسعار USD: شراء ${usdBuyPrice}, بيع ${usdSellPrice}`);
+            break;
+          }
         }
       }
+      if (usdBuyPrice > 0 && usdSellPrice > 0) break;
     }
 
     const updates = [];
@@ -153,14 +183,15 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'تم تحديث أسعار SAR و USD بنجاح',
+        message: 'تم تحديث أسعار SAR و USD المحسن بنجاح',
         updates: updates,
         extractedPrices: {
           SAR: { buy: sarBuyPrice, sell: sarSellPrice },
           USD: { buy: usdBuyPrice, sell: usdSellPrice }
         },
         timestamp: new Date().toISOString(),
-        source: 'ye-rial.com/aden'
+        source: 'ye-rial.com/aden (محسن)',
+        version: '2.0 - Enhanced'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -168,12 +199,13 @@ serve(async (req) => {
     )
 
   } catch (error) {
-    console.error('❌ خطأ في تحديث أسعار SAR و USD:', error)
+    console.error('❌ خطأ في تحديث أسعار SAR و USD المحسن:', error)
     return new Response(
       JSON.stringify({ 
         success: false, 
         error: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        source: 'ye-rial.com/aden (محسن)'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

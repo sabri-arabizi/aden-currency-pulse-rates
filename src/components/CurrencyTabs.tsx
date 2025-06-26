@@ -90,11 +90,11 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
         )}
       </div>
 
-      {/* Update Status */}
+      {/* Enhanced Update Status */}
       <div className="mt-10 text-center">
         <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-xl">
-          <div className="text-white/90 text-lg font-medium mb-2">
-            📊 آخر تحديث تلقائي: {new Date().toLocaleString('en-US', {
+          <div className="text-white/90 text-lg font-medium mb-4">
+            📊 نظام التحديث المحسن - آخر تحديث: {new Date().toLocaleString('ar-SA', {
               year: 'numeric',
               month: '2-digit', 
               day: '2-digit',
@@ -103,10 +103,23 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
               hour12: true
             })}
           </div>
-          <div className="text-white/70 text-sm space-y-1">
-            <p>🔄 الريال السعودي والدولار: ye-rial.com (كل ساعة)</p>
-            <p>🔄 الدرهم الإماراتي: almashhadalaraby.com (كل ساعة)</p>
-            <p>🔄 الجنيه المصري: khbr.me (كل ساعة)</p>
+          <div className="text-white/70 text-sm space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white/5 rounded-lg p-3">
+                <p className="font-semibold text-green-300 mb-1">🔄 التحديث التلقائي المحسن</p>
+                <p>⏰ الريال السعودي والدولار: ye-rial.com/aden (كل ساعة)</p>
+                <p>⏰ الدرهم الإماراتي: almashhadalaraby.com (كل ساعة)</p>
+                <p>⏰ الجنيه المصري: 2dec.net (كل ساعة)</p>
+                <p>⏰ أسعار الذهب: yemennownews.com (كل ساعة)</p>
+              </div>
+              <div className="bg-white/5 rounded-lg p-3">
+                <p className="font-semibold text-blue-300 mb-1">🎯 الميزات المحسنة</p>
+                <p>✅ دقة عالية في استخراج الأسعار</p>
+                <p>✅ دعم الخانات العشرية للدولار</p>
+                <p>✅ تحليل متقدم لصفحات الويب</p>
+                <p>✅ عرض مصدر كل عملة</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

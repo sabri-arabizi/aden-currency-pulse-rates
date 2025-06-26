@@ -14,12 +14,24 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
   };
 
   const formatPrice = (price: number) => {
-    // تحسين عرض الأرقام مع دعم الخانات العشرية للدولار
+    // تحسين عرض الأرقام مع دعم محسن للخانات العشرية
     if (rate.currency_code === 'USD') {
-      // عرض 4 خانات عشرية للدولار الأمريكي
+      // عرض 4 خانات عشرية للدولار الأمريكي مع إزالة الأصفار غير الضرورية
       return new Intl.NumberFormat('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 4
+      }).format(price);
+    } else if (rate.currency_code === 'SAR') {
+      // عرض خانتين عشريتين للريال السعودي مع إزالة الأصفار غير الضرورية
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      }).format(price);
+    } else if (rate.currency_code === 'EGP') {
+      // عرض خانتين عشريتين للجنيه المصري مع دقة عالية
+      return new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
       }).format(price);
     } else {
       // عرض خانتين عشريتين للعملات الأخرى
@@ -53,6 +65,16 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
       const diffHours = Math.floor(diffMinutes / 60);
       return `منذ ${diffHours} ساعة`;
     }
+  };
+
+  const getCurrencySourceInfo = (currencyCode: string) => {
+    const sources = {
+      'SAR': 'ye-rial.com/aden',
+      'USD': 'ye-rial.com/aden',
+      'AED': 'almashhadalaraby.com',
+      'EGP': '2dec.net'
+    };
+    return sources[currencyCode as keyof typeof sources] || 'مصدر محلي';
   };
 
   return (
@@ -131,6 +153,9 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
               month: '2-digit',
               hour12: true
             })}
+          </div>
+          <div className="text-xs text-blue-600 mt-1 font-medium">
+            📡 {getCurrencySourceInfo(rate.currency_code)}
           </div>
         </div>
       </CardContent>
