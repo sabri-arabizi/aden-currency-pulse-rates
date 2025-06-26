@@ -13,7 +13,7 @@ const ManualRefreshButton = () => {
     setIsRefreshing(true);
     
     try {
-      console.log('🔄 بدء التحديث الشامل لجميع الأسعار...');
+      console.log('🔄 بدء التحديث اليدوي لجميع الأسعار...');
 
       // Update SAR and USD prices for Aden
       const sarResponse = await supabase.functions.invoke('update-sar-prices', {
@@ -45,7 +45,7 @@ const ManualRefreshButton = () => {
         body: { manual: true }
       });
 
-      console.log('نتائج التحديث الشامل:', { 
+      console.log('نتائج التحديث اليدوي:', { 
         sarResponse, 
         aedResponse, 
         egpResponse, 
@@ -55,15 +55,15 @@ const ManualRefreshButton = () => {
       });
 
       toast({
-        title: "تم التحديث الشامل بنجاح ✅",
-        description: "تم تحديث أسعار جميع العملات والذهب لعدن وصنعاء من المصادر المحدثة",
+        title: "تم التحديث اليدوي بنجاح ✅",
+        description: "تم تحديث أسعار جميع العملات والذهب يدوياً (الجدولة التلقائية متوقفة)",
         duration: 5000,
       });
 
     } catch (error) {
-      console.error('Error refreshing all rates:', error);
+      console.error('Error in manual refresh:', error);
       toast({
-        title: "خطأ في التحديث الشامل ❌",
+        title: "خطأ في التحديث اليدوي ❌",
         description: "حدث خطأ أثناء تحديث بعض الأسعار",
         variant: "destructive",
         duration: 5000,
@@ -77,13 +77,13 @@ const ManualRefreshButton = () => {
     <Button
       onClick={handleRefresh}
       disabled={isRefreshing}
-      className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+      className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
     >
       <RefreshCw 
         size={20} 
         className={`ml-2 ${isRefreshing ? 'animate-spin' : ''}`} 
       />
-      {isRefreshing ? 'جاري التحديث الشامل...' : 'تحديث جميع الأسعار'}
+      {isRefreshing ? 'جاري التحديث اليدوي...' : 'تحديث يدوي (الجدولة متوقفة)'}
     </Button>
   );
 };
