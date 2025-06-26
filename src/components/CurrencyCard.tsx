@@ -1,18 +1,16 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExchangeRate } from '@/hooks/useExchangeRates';
 import { TrendingUp, TrendingDown, Clock, Zap } from 'lucide-react';
-
 interface CurrencyCardProps {
   rate: ExchangeRate;
 }
-
-export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
+export const CurrencyCard = ({
+  rate
+}: CurrencyCardProps) => {
   const isAutoUpdated = (currencyCode: string) => {
     return ['SAR', 'USD', 'AED', 'EGP'].includes(currencyCode);
   };
-
   const formatPrice = (price: number) => {
     // تحسين عرض الأرقام مع دعم محسن للخانات العشرية
     if (rate.currency_code === 'USD') {
@@ -41,22 +39,19 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
       }).format(price);
     }
   };
-
   const getCurrencyGradient = (currencyCode: string) => {
     const gradients = {
       'SAR': 'from-green-400 to-emerald-600',
-      'USD': 'from-blue-400 to-blue-600', 
+      'USD': 'from-blue-400 to-blue-600',
       'AED': 'from-red-400 to-red-600',
       'EGP': 'from-yellow-400 to-orange-600'
     };
     return gradients[currencyCode as keyof typeof gradients] || 'from-gray-400 to-gray-600';
   };
-
   const getLastUpdateTime = () => {
     const updateTime = new Date(rate.updated_at);
     const now = new Date();
     const diffMinutes = Math.floor((now.getTime() - updateTime.getTime()) / (1000 * 60));
-    
     if (diffMinutes < 1) {
       return 'الآن';
     } else if (diffMinutes < 60) {
@@ -66,7 +61,6 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
       return `منذ ${diffHours} ساعة`;
     }
   };
-
   const getCurrencySourceInfo = (currencyCode: string) => {
     const sources = {
       'SAR': 'ye-rial.com/aden',
@@ -76,27 +70,19 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
     };
     return sources[currencyCode as keyof typeof sources] || 'مصدر محلي';
   };
-
-  return (
-    <Card className="h-full bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+  return <Card className="h-full bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
       <CardHeader className="pb-4 relative overflow-hidden">
         <div className={`absolute inset-0 bg-gradient-to-br ${getCurrencyGradient(rate.currency_code)} opacity-5 group-hover:opacity-10 transition-opacity duration-300`}></div>
         
         <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <img 
-                src={rate.flag_url} 
-                alt={rate.currency_name}
-                className="w-12 h-8 rounded-md shadow-lg border-2 border-white"
-              />
-              {isAutoUpdated(rate.currency_code) && (
-                <div className="absolute -top-1 -right-1">
+              <img src={rate.flag_url} alt={rate.currency_name} className="w-12 h-8 rounded-md shadow-lg border-2 border-white" />
+              {isAutoUpdated(rate.currency_code) && <div className="absolute -top-1 -right-1">
                   <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
                     <Zap size={10} className="text-white" />
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
             
             <div>
@@ -107,12 +93,10 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
             </div>
           </div>
 
-          {isAutoUpdated(rate.currency_code) && (
-            <div className="flex items-center text-xs text-green-600 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
+          {isAutoUpdated(rate.currency_code) && <div className="flex items-center text-xs text-green-600 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
               <Clock size={12} className="ml-1" />
               <span className="font-medium">تلقائي</span>
-            </div>
-          )}
+            </div>}
         </div>
       </CardHeader>
       
@@ -147,18 +131,15 @@ export const CurrencyCard = ({ rate }: CurrencyCardProps) => {
           </div>
           <div className="text-xs text-gray-400 mt-1">
             {new Date(rate.updated_at).toLocaleString('ar-SA', {
-              hour: '2-digit',
-              minute: '2-digit',
-              day: '2-digit',
-              month: '2-digit',
-              hour12: true
-            })}
+            hour: '2-digit',
+            minute: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            hour12: true
+          })}
           </div>
-          <div className="text-xs text-blue-600 mt-1 font-medium">
-            📡 {getCurrencySourceInfo(rate.currency_code)}
-          </div>
+          
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
