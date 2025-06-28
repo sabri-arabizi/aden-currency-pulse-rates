@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.adenrates.currencyapp',
-  appName: 'Aden Currency Rates',
+  appName: 'اسعار الصرف اليمن',
   webDir: 'dist',
   server: {
     url: 'https://eba60485-e67c-44be-9844-41260bc973ea.lovableproject.com?forceHideBadge=true',

@@ -2,7 +2,7 @@
 export const translations = {
   ar: {
     // Header
-    appTitle: 'أسعار العملات اليمنية',
+    appTitle: 'اسعار الصرف اليمن',
     liveUpdate: 'تحديث مباشر ولحظي',
     
     // Cities
@@ -51,7 +51,7 @@ export const translations = {
   },
   en: {
     // Header
-    appTitle: 'Yemeni Currency Rates',
+    appTitle: 'Yemen Exchange Rates',
     liveUpdate: 'Live & Real-time Updates',
     
     // Cities
