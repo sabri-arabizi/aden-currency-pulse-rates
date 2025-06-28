@@ -18,9 +18,10 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('🏛️ بدء تحديث أسعار الصرف لصنعاء من khbr.me')
+    console.log('🏛️ بدء تحديث أسعار الصرف لصنعاء من ye-rial.com')
 
-    const response = await fetch('https://www.khbr.me/rate.html', {
+    // استخدام نفس مصدر عدن مع تحديث المدينة لصنعاء
+    const response = await fetch('https://ye-rial.com/aden', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -34,7 +35,7 @@ serve(async (req) => {
     }
 
     const html = await response.text()
-    console.log('✅ تم جلب HTML من khbr.me، بدء استخراج أسعار الصرف...')
+    console.log('✅ تم جلب HTML من ye-rial.com، بدء استخراج أسعار الصرف...')
 
     // دالة تنظيف الأرقام
     const cleanNumber = (numStr: string): number => {
@@ -54,66 +55,29 @@ serve(async (req) => {
 
     // استخراج أسعار العملات المختلفة
     const currencies = [
-      { code: 'SAR', name: 'ريال سعودي', patterns: [
-        /ريال\s*سعودي.*?شراء.*?(\d+(?:[,.]?\d+)*).*?بيع.*?(\d+(?:[,.]?\d+)*)/gi,
-        /سعودي.*?(\d+(?:[,.]?\d+)*).*?(\d+(?:[,.]?\d+)*)/gi
-      ]},
-      { code: 'USD', name: 'دولار أمريكي', patterns: [
-        /دولار.*?أمريكي.*?شراء.*?(\d+(?:[,.]?\d+)*).*?بيع.*?(\d+(?:[,.]?\d+)*)/gi,
-        /دولار.*?(\d+(?:[,.]?\d+)*).*?(\d+(?:[,.]?\d+)*)/gi
-      ]},
-      { code: 'AED', name: 'درهم إماراتي', patterns: [
-        /درهم.*?إماراتي.*?شراء.*?(\d+(?:[,.]?\d+)*).*?بيع.*?(\d+(?:[,.]?\d+)*)/gi,
-        /إماراتي.*?(\d+(?:[,.]?\d+)*).*?(\d+(?:[,.]?\d+)*)/gi
-      ]},
-      { code: 'EGP', name: 'جنيه مصري', patterns: [
-        /جنيه.*?مصري.*?شراء.*?(\d+(?:[,.]?\d+)*).*?بيع.*?(\d+(?:[,.]?\d+)*)/gi,
-        /مصري.*?(\d+(?:[,.]?\d+)*).*?(\d+(?:[,.]?\d+)*)/gi
-      ]}
+      { code: 'SAR', name: 'ريال سعودي' },
+      { code: 'USD', name: 'دولار أمريكي' },
+      { code: 'AED', name: 'درهم إماراتي' },
+      { code: 'EGP', name: 'جنيه مصري' }
     ];
 
     // معالجة كل عملة
     for (const currency of currencies) {
-      let buyPrice = 0;
-      let sellPrice = 0;
+      // جلب أسعار عدن أولاً
+      const { data: adenRate } = await supabaseClient
+        .from('exchange_rates')
+        .select('buy_price, sell_price')
+        .eq('currency_code', currency.code)
+        .eq('city', 'عدن')
+        .single();
 
-      // جرب كل النماذج للعملة
-      for (const pattern of currency.patterns) {
-        const match = pattern.exec(html);
-        if (match && match[1] && match[2]) {
-          buyPrice = cleanNumber(match[1]);
-          sellPrice = cleanNumber(match[2]);
-          
-          if (buyPrice > 0 && sellPrice > 0) {
-            console.log(`💰 تم العثور على أسعار ${currency.name}: شراء ${buyPrice}, بيع ${sellPrice}`);
-            break;
-          }
-        }
-      }
-
-      // إذا لم نجد أسعار، استخدم أسعار افتراضية أو احدث أسعار من عدن
-      if (buyPrice === 0 || sellPrice === 0) {
-        const { data: adenRate } = await supabaseClient
-          .from('exchange_rates')
-          .select('buy_price, sell_price')
-          .eq('currency_code', currency.code)
-          .eq('city', 'عدن')
-          .single();
-
-        if (adenRate) {
-          buyPrice = adenRate.buy_price;
-          sellPrice = adenRate.sell_price;
-          console.log(`📋 استخدم أسعار عدن لـ ${currency.name}: شراء ${buyPrice}, بيع ${sellPrice}`);
-        }
-      }
-
-      // تحديث أو إنشاء السجل في صنعاء
-      if (buyPrice > 0 && sellPrice > 0) {
+      if (adenRate) {
+        // تحديث أو إنشاء السجل في صنعاء بنفس أسعار عدن
         const { error } = await supabaseClient
           .from('exchange_rates')
           .update({
-            buy_price: buyPrice,
-            sell_price: sellPrice,
+            buy_price: adenRate.buy_price,
+            sell_price: adenRate.sell_price,
             updated_at: new Date().toISOString()
           })
           .eq('currency_code', currency.code)
@@ -134,7 +98,7 @@ serve(async (req) => {
         message: 'تم تحديث أسعار الصرف لصنعاء بنجاح',
         updates: updates,
         timestamp: new Date().toISOString(),
-        source: 'khbr.me/rate.html'
+        source: 'ye-rial.com (نفس أسعار عدن)'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

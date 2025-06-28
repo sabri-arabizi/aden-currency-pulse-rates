@@ -7,7 +7,6 @@ import { useGoldPrices } from '@/hooks/useGoldPrices';
 import { CurrencyCard } from './CurrencyCard';
 import { GoldCard } from './GoldCard';
 import SanaaCurrencyCards from './SanaaCurrencyCards';
-import SanaaExchangeTable from './SanaaExchangeTable';
 import ManualRefreshButton from './ManualRefreshButton';
 
 interface CurrencyTabsProps {
@@ -97,11 +96,11 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
                     </h2>
                     <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span>المصدر: khbr.me</span>
+                      <span>المصدر: ye-rial.com</span>
                     </div>
                   </div>
                 </div>
-                <SanaaExchangeTable rates={exchangeRates || []} />
+                <SanaaCurrencyCards rates={exchangeRates || []} />
               </div>
             )}
             
@@ -182,7 +181,7 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
                 <div className="bg-amber-800/10 p-3 rounded-lg">
                   <div className="font-medium">مدينة صنعاء</div>
                   <div className="text-xs">
-                    العملات: khbr.me/rate.html<br />
+                    العملات: ye-rial.com<br />
                     الذهب: yemennownews.com
                   </div>
                 </div>
