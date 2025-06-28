@@ -28,15 +28,9 @@ const Index = () => {
             <SarUpdateButton />
             <GoldUpdateButton />
             
-            <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-2 rounded-xl text-xs md:text-sm font-medium border border-white/30 shadow-lg">
-              USD
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-2 rounded-xl text-xs md:text-sm font-medium border border-white/30 shadow-lg">
-              AED
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm text-white px-3 py-2 rounded-xl text-xs md:text-sm font-medium border border-white/30 shadow-lg">
-              EGP
-            </div>
+            
+            
+            
           </div>
         </div>
       </div>
