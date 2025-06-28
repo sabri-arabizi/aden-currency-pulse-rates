@@ -8,9 +8,10 @@ import { ExchangeRate } from '@/hooks/useExchangeRates';
 
 interface CurrencyConverterProps {
   rates: ExchangeRate[];
+  language: 'ar' | 'en';
 }
 
-const CurrencyConverter = ({ rates }: CurrencyConverterProps) => {
+const CurrencyConverter = ({ rates, language }: CurrencyConverterProps) => {
   const [amount, setAmount] = useState<string>('');
   const [fromCurrency, setFromCurrency] = useState<string>('YER');
   const [toCurrency, setToCurrency] = useState<string>('USD');
@@ -18,7 +19,11 @@ const CurrencyConverter = ({ rates }: CurrencyConverterProps) => {
   const [conversionType, setConversionType] = useState<'buy' | 'sell'>('buy');
 
   const availableCurrencies = [
-    { code: 'YER', name: 'Yemeni Rial', flag: '🇾🇪' },
+    { 
+      code: 'YER', 
+      name: language === 'ar' ? 'ريال يمني' : 'Yemeni Rial', 
+      flag: '🇾🇪' 
+    },
     ...rates.map(rate => ({
       code: rate.currency_code,
       name: rate.currency_name,
@@ -28,7 +33,7 @@ const CurrencyConverter = ({ rates }: CurrencyConverterProps) => {
 
   const convertCurrency = () => {
     if (!amount || isNaN(Number(amount))) {
-      setResult('Please enter a valid number');
+      setResult(language === 'ar' ? 'يرجى إدخال رقم صحيح' : 'Please enter a valid number');
       return;
     }
 
@@ -77,9 +82,11 @@ const CurrencyConverter = ({ rates }: CurrencyConverterProps) => {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold text-gray-800 flex items-center justify-center gap-3">
             <Calculator size={28} className="text-blue-600" />
-            Currency Converter
+            {language === 'ar' ? 'محول العملات' : 'Currency Converter'}
           </CardTitle>
-          <p className="text-gray-600">Convert between Yemeni Rial and other currencies</p>
+          <p className="text-gray-600">
+            {language === 'ar' ? 'تحويل بين الريال اليمني والعملات الأخرى' : 'Convert between Yemeni Rial and other currencies'}
+          </p>
         </CardHeader>
         
         <CardContent className="space-y-6">
@@ -90,23 +97,25 @@ const CurrencyConverter = ({ rates }: CurrencyConverterProps) => {
               variant={conversionType === 'buy' ? 'default' : 'outline'}
               className="px-6"
             >
-              Buy Rate
+              {language === 'ar' ? 'سعر الشراء' : 'Buy Rate'}
             </Button>
             <Button
               onClick={() => setConversionType('sell')}
               variant={conversionType === 'sell' ? 'default' : 'outline'}
               className="px-6"
             >
-              Sell Rate
+              {language === 'ar' ? 'سعر البيع' : 'Sell Rate'}
             </Button>
           </div>
 
           {/* Amount Input */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Amount</label>
+            <label className="text-sm font-medium text-gray-700">
+              {language === 'ar' ? 'المبلغ' : 'Amount'}
+            </label>
             <Input
               type="number"
-              placeholder="Enter amount"
+              placeholder={language === 'ar' ? 'أدخل المبلغ' : 'Enter amount'}
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               className="text-lg p-3"
@@ -115,7 +124,9 @@ const CurrencyConverter = ({ rates }: CurrencyConverterProps) => {
 
           {/* From Currency */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">From</label>
+            <label className="text-sm font-medium text-gray-700">
+              {language === 'ar' ? 'من' : 'From'}
+            </label>
             <select
               value={fromCurrency}
               onChange={(e) => setFromCurrency(e.target.value)}
@@ -143,7 +154,9 @@ const CurrencyConverter = ({ rates }: CurrencyConverterProps) => {
 
           {/* To Currency */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">To</label>
+            <label className="text-sm font-medium text-gray-700">
+              {language === 'ar' ? 'إلى' : 'To'}
+            </label>
             <select
               value={toCurrency}
               onChange={(e) => setToCurrency(e.target.value)}
@@ -163,16 +176,18 @@ const CurrencyConverter = ({ rates }: CurrencyConverterProps) => {
             className="w-full text-lg py-3"
             disabled={!amount}
           >
-            Convert
+            {language === 'ar' ? 'تحويل' : 'Convert'}
           </Button>
 
           {/* Result */}
           {result && (
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-200 text-center">
-              <div className="text-sm text-gray-600 mb-2">Conversion Result</div>
+              <div className="text-sm text-gray-600 mb-2">
+                {language === 'ar' ? 'نتيجة التحويل' : 'Conversion Result'}
+              </div>
               <div className="text-2xl font-bold text-blue-800">{result}</div>
               <div className="text-xs text-gray-500 mt-2">
-                Using {conversionType} rate • Rates updated regularly
+                {language === 'ar' ? `باستخدام سعر ${conversionType === 'buy' ? 'الشراء' : 'البيع'} • يتم تحديث الأسعار بانتظام` : `Using ${conversionType} rate • Rates updated regularly`}
               </div>
             </div>
           )}
@@ -180,8 +195,11 @@ const CurrencyConverter = ({ rates }: CurrencyConverterProps) => {
           {/* Disclaimer */}
           <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
             <p className="text-xs text-yellow-800">
-              <strong>Disclaimer:</strong> These rates are for informational purposes only. 
-              Actual exchange rates may vary. Please confirm current rates before making transactions.
+              <strong>{language === 'ar' ? 'إخلاء مسؤولية:' : 'Disclaimer:'}</strong>{' '}
+              {language === 'ar' 
+                ? 'هذه الأسعار للأغراض الإعلامية فقط. قد تختلف أسعار الصرف الفعلية. يرجى تأكيد الأسعار الحالية قبل إجراء المعاملات.'
+                : 'These rates are for informational purposes only. Actual exchange rates may vary. Please confirm current rates before making transactions.'
+              }
             </p>
           </div>
         </CardContent>
