@@ -69,7 +69,7 @@ const CurrencyTabs = ({
                     </h2>
                     <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span>المصدر: khbr.me/rate.html</span>
+                      
                     </div>
                   </div>
                 </div>
