@@ -13,7 +13,7 @@ const Index = () => {
 
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4 md:p-6 shadow-2xl relative z-10">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 rounded-full bg-yellow-400/80 p-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 rounded-full p-4 bg-[#eac30d]/90">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-2xl">
               <span className="text-white font-bold text-xl md:text-2xl">₹</span>
@@ -42,11 +42,11 @@ const Index = () => {
       </div>
 
       {/* City Selector */}
-      <div className="max-w-7xl mx-auto py-6 md:py-10 px-4 relative z-10">
+      <div className="max-w-7xl mx-auto py-6 md:py-10 px-4 relative z-10 bg-[#4d4d25]/55">
         <div className="text-center mb-6 md:mb-10">
           <h2 className="text-white text-xl md:text-2xl mb-6 md:mb-8 font-light tracking-wide">اختر المدينة</h2>
           
-          <div className="flex justify-center gap-4 md:gap-8 mb-6 md:mb-10 px-4 mx-auto py-4 bg-amber-800/40 rounded-full backdrop-blur-sm">
+          <div className="flex justify-center gap-4 md:gap-8 mb-6 md:mb-10 px-4 mx-auto py-4 rounded-full backdrop-blur-sm bg-[#ffd100]/85">
             <button onClick={() => setSelectedCity('صنعاء')} className={`relative transition-all duration-500 group ${selectedCity === 'صنعاء' ? 'transform scale-110' : 'hover:transform hover:scale-105'}`}>
               <div className="w-28 h-28 md:w-36 md:h-36 rounded-3xl overflow-hidden border-4 border-gradient-to-r from-purple-400 to-pink-400 shadow-2xl group-hover:shadow-purple-500/50 transition-all duration-300">
                 <img alt="صنعاء" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" src="/lovable-uploads/51456852-7651-4526-9445-d268f033ea3c.jpg" />
