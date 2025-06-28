@@ -94,7 +94,7 @@ const CurrencyTabs = ({
             
             {selectedCity === 'عدن' && <div className="rounded-none">
                 <div className="text-center mb-8">
-                  <div className="bg-amber-800/20 backdrop-blur-sm rounded-2xl p-6 border border-amber-600/30 shadow-xl mb-6">
+                  <div className="bg-amber-800/20 backdrop-blur-sm p-6 border border-amber-600/30 shadow-xl mb-6 rounded-full">
                     <h2 className="text-white text-2xl md:text-3xl font-bold mb-3 flex items-center justify-center gap-3">
                       <DollarSign size={32} className="text-yellow-400" />
                       {t('exchangeRates', language)} - {getCityName('عدن')}

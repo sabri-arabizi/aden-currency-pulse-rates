@@ -128,7 +128,7 @@ export const CurrencyCard = ({
         </div>
         
         <div className="mt-5 text-center">
-          <div className="text-xs text-gray-500 bg-gray-50 px-3 py-2 rounded-lg border">
+          <div className="text-xs text-gray-500 border mx-0 bg-white rounded-full px-0 my-[2px] py-[9px]">
             {language === 'ar' ? 'آخر تحديث:' : 'Last update:'} {getLastUpdateTime()}
           </div>
           <div className="text-xs text-gray-400 mt-1">
