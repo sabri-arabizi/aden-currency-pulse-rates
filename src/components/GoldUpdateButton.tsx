@@ -1,29 +1,29 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Coins } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+
 const GoldUpdateButton = () => {
   const [isUpdating, setIsUpdating] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
   const handleGoldUpdate = async () => {
     setIsUpdating(true);
     try {
       console.log('🥇 بدء تحديث أسعار الذهب يدوياً...');
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('update-gold-prices', {
+      const { data, error } = await supabase.functions.invoke('update-gold-prices', {
         body: {
           manual: true,
           source: 'yemennownews.com'
         }
       });
+
       if (error) {
         throw error;
       }
+
       console.log('نتيجة تحديث الذهب:', data);
       toast({
         title: "✅ تم تحديث أسعار الذهب بنجاح",
@@ -42,6 +42,17 @@ const GoldUpdateButton = () => {
       setIsUpdating(false);
     }
   };
-  return;
+
+  return (
+    <Button
+      onClick={handleGoldUpdate}
+      disabled={isUpdating}
+      className="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition-all duration-300"
+    >
+      <Coins size={18} className="ml-2" />
+      {isUpdating ? 'جاري التحديث...' : 'تحديث الذهب'}
+    </Button>
+  );
 };
+
 export default GoldUpdateButton;
