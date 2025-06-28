@@ -83,12 +83,7 @@ const Index = () => {
               <span className="text-xs md:text-sm font-medium">الرئيسية</span>
             </button>
             
-            <button className="flex flex-col items-center gap-1 md:gap-2 text-yellow-400 hover:text-yellow-300 transition-all duration-300 group p-2">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <span className="text-lg md:text-xl">👤</span>
-              </div>
-              
-            </button>
+            
           </div>
         </div>
       </div>
