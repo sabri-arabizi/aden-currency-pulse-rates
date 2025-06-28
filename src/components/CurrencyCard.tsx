@@ -100,7 +100,7 @@ export const CurrencyCard = ({
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0 relative">
+      <CardContent className="pt-0 relative bg-[#f2f235]/[0.62] rounded-full">
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-2xl text-center border border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
             <div className="flex items-center justify-center mb-3">
