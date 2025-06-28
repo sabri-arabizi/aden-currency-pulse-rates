@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const Contact = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-amber-900 via-yellow-900 to-amber-800">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-6 shadow-2xl">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -42,6 +42,28 @@ const Contact = () => {
           </CardHeader>
           
           <CardContent className="space-y-8">
+            {/* App Designer Info with Logo */}
+            <div className="bg-gradient-to-br from-purple-50 to-indigo-100 p-8 rounded-2xl border border-purple-200 shadow-lg">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src="/lovable-uploads/caa96dde-c2b5-46a7-b10a-316f029f8d63.png" 
+                    alt="الشواحي إكسبريس"
+                    className="w-24 h-24 rounded-2xl shadow-xl border-4 border-white"
+                  />
+                </div>
+                
+                <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-purple-200 shadow-md">
+                  <p className="text-gray-700 text-lg leading-relaxed font-medium">
+                    تم تصميم التطبيق من قبل الداعم الفني لشركة الشواحي للصرافة
+                  </p>
+                  <p className="text-purple-600 text-xl font-bold mt-2">
+                    صبري الربيزي
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Developer Info */}
             <div className="bg-gradient-to-br from-blue-50 to-indigo-100 p-8 rounded-2xl border border-blue-200 shadow-lg">
               <div className="text-center space-y-4">
@@ -54,16 +76,8 @@ const Contact = () => {
                 </h2>
                 
                 <p className="text-lg text-gray-700">
-                  مطور التطبيق
+                  مطور التطبيق والداعم الفني
                 </p>
-                
-                <div className="bg-white/80 backdrop-blur-sm p-6 rounded-xl border border-blue-200 shadow-md">
-                  <p className="text-gray-700 text-lg leading-relaxed">
-                    لقد تم تطوير هذا التطبيق من قبل 
-                    <span className="font-bold text-blue-600 mx-2">صبري الربيزي</span>
-                    للاستفسار يرجى التواصل على هذا الرقم
-                  </p>
-                </div>
               </div>
             </div>
 

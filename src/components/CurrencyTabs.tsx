@@ -1,12 +1,13 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { DollarSign, Coins } from 'lucide-react';
+import { DollarSign, Coins, Calculator } from 'lucide-react';
 import { useExchangeRates } from '@/hooks/useExchangeRates';
 import { useGoldPrices } from '@/hooks/useGoldPrices';
 import { CurrencyCard } from './CurrencyCard';
 import { GoldCard } from './GoldCard';
 import SanaaCurrencyCards from './SanaaCurrencyCards';
+import CurrencyConverter from './CurrencyConverter';
 import ManualRefreshButton from './ManualRefreshButton';
 
 interface CurrencyTabsProps {
@@ -60,25 +61,36 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
       <div className="flex bg-amber-800/20 backdrop-blur-sm rounded-2xl overflow-hidden mb-8 border border-amber-600/30 shadow-xl">
         <button
           onClick={() => setActiveTab('currencies')}
-          className={`flex-1 flex items-center justify-center py-4 px-6 font-bold text-lg transition-all duration-300 ${
+          className={`flex-1 flex items-center justify-center py-4 px-4 font-bold text-sm md:text-lg transition-all duration-300 ${
             activeTab === 'currencies'
               ? 'bg-gradient-to-r from-amber-600 to-yellow-600 text-white shadow-lg'
               : 'text-white/80 hover:text-white hover:bg-amber-700/20'
           }`}
         >
-          <DollarSign className="ml-3" size={24} />
+          <DollarSign className="ml-2" size={20} />
           العملات الأجنبية
         </button>
         <button
           onClick={() => setActiveTab('gold')}
-          className={`flex-1 flex items-center justify-center py-4 px-6 font-bold text-lg transition-all duration-300 ${
+          className={`flex-1 flex items-center justify-center py-4 px-4 font-bold text-sm md:text-lg transition-all duration-300 ${
             activeTab === 'gold'
               ? 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white shadow-lg'
               : 'text-white/80 hover:text-white hover:bg-amber-700/20'
           }`}
         >
-          <Coins className="ml-3" size={24} />
+          <Coins className="ml-2" size={20} />
           أسعار الذهب
+        </button>
+        <button
+          onClick={() => setActiveTab('converter')}
+          className={`flex-1 flex items-center justify-center py-4 px-4 font-bold text-sm md:text-lg transition-all duration-300 ${
+            activeTab === 'converter'
+              ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg'
+              : 'text-white/80 hover:text-white hover:bg-amber-700/20'
+          }`}
+        >
+          <Calculator className="ml-2" size={20} />
+          التحويل
         </button>
       </div>
 
@@ -92,11 +104,11 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
                   <div className="bg-amber-800/20 backdrop-blur-sm rounded-2xl p-6 border border-amber-600/30 shadow-xl mb-6">
                     <h2 className="text-white text-2xl md:text-3xl font-bold mb-3 flex items-center justify-center gap-3">
                       <DollarSign size={32} className="text-yellow-400" />
-                      أسعار الصرف - مدينة صنعاء
+                      Exchange Rates - Sanaa City
                     </h2>
                     <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span>المصدر: ye-rial.com</span>
+                      <span>Source: ye-rial.com/sanaa</span>
                     </div>
                   </div>
                 </div>
@@ -110,11 +122,11 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
                   <div className="bg-amber-800/20 backdrop-blur-sm rounded-2xl p-6 border border-amber-600/30 shadow-xl mb-6">
                     <h2 className="text-white text-2xl md:text-3xl font-bold mb-3 flex items-center justify-center gap-3">
                       <DollarSign size={32} className="text-yellow-400" />
-                      أسعار الصرف - مدينة عدن
+                      Exchange Rates - Aden City
                     </h2>
                     <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
                       <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                      <span>المصدر: ye-rial.com</span>
+                      <span>Source: ye-rial.com</span>
                     </div>
                   </div>
                 </div>
@@ -134,12 +146,12 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
               <div className="bg-amber-800/20 backdrop-blur-sm rounded-2xl p-6 border border-amber-600/30 shadow-xl mb-6">
                 <h2 className="text-white text-2xl md:text-3xl font-bold mb-3 flex items-center justify-center gap-3">
                   <Coins size={32} className="text-yellow-400" />
-                  أسعار الذهب - {selectedCity}
+                  Gold Prices - {selectedCity}
                 </h2>
                 <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                   <span>
-                    {selectedCity === 'عدن' ? 'المصدر: soutalmukawama.com' : 'المصدر: yemennownews.com'}
+                    {selectedCity === 'عدن' ? 'Source: soutalmukawama.com' : 'Source: yemennownews.com'}
                   </span>
                 </div>
               </div>
@@ -151,13 +163,31 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
             </div>
           </div>
         )}
+
+        {activeTab === 'converter' && (
+          <div>
+            <div className="text-center mb-8">
+              <div className="bg-amber-800/20 backdrop-blur-sm rounded-2xl p-6 border border-amber-600/30 shadow-xl mb-6">
+                <h2 className="text-white text-2xl md:text-3xl font-bold mb-3 flex items-center justify-center gap-3">
+                  <Calculator size={32} className="text-yellow-400" />
+                  Currency Converter - {selectedCity}
+                </h2>
+                <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <span>Accurate currency conversion based on live rates</span>
+                </div>
+              </div>
+            </div>
+            <CurrencyConverter rates={exchangeRates || []} />
+          </div>
+        )}
       </div>
 
       {/* Enhanced Update Status */}
       <div className="mt-10 text-center">
         <div className="bg-amber-800/10 backdrop-blur-sm rounded-2xl p-6 border border-amber-600/20 shadow-xl">
           <div className="text-white/90 text-lg font-medium mb-4">
-            📊 نظام التحديث اليدوي - آخر تحديث: {new Date().toLocaleString('en-US', {
+            📊 Manual Update System - Last Update: {new Date().toLocaleString('en-US', {
               year: 'numeric',
               month: '2-digit',
               day: '2-digit',
@@ -170,19 +200,19 @@ const CurrencyTabs = ({ selectedCity }: CurrencyTabsProps) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {selectedCity === 'عدن' && (
                 <div className="bg-amber-800/10 p-3 rounded-lg">
-                  <div className="font-medium">مدينة عدن</div>
+                  <div className="font-medium">Aden City</div>
                   <div className="text-xs">
-                    العملات: ye-rial.com/aden • 2dec.net<br />
-                    الذهب: soutalmukawama.com/cat/5
+                    Currencies: ye-rial.com/aden • 2dec.net<br />
+                    Gold: soutalmukawama.com/cat/5
                   </div>
                 </div>
               )}
               {selectedCity === 'صنعاء' && (
                 <div className="bg-amber-800/10 p-3 rounded-lg">
-                  <div className="font-medium">مدينة صنعاء</div>
+                  <div className="font-medium">Sanaa City</div>
                   <div className="text-xs">
-                    العملات: ye-rial.com<br />
-                    الذهب: yemennownews.com
+                    Currencies: ye-rial.com/sanaa<br />
+                    Gold: yemennownews.com
                   </div>
                 </div>
               )}
