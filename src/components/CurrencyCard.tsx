@@ -2,13 +2,14 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ExchangeRate } from '@/hooks/useExchangeRates';
 import { TrendingUp, TrendingDown, Clock, Zap } from 'lucide-react';
-
 interface CurrencyCardProps {
   rate: ExchangeRate;
   language: 'ar' | 'en';
 }
-
-export const CurrencyCard = ({ rate, language }: CurrencyCardProps) => {
+export const CurrencyCard = ({
+  rate,
+  language
+}: CurrencyCardProps) => {
   const isAutoUpdated = (currencyCode: string) => {
     return ['SAR', 'USD', 'AED', 'EGP'].includes(currencyCode);
   };
@@ -71,8 +72,7 @@ export const CurrencyCard = ({ rate, language }: CurrencyCardProps) => {
     };
     return sources[currencyCode as keyof typeof sources] || 'مصدر محلي';
   };
-  return (
-    <Card className="h-full bg-white/95 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group">
+  return <Card className="h-full backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 group rounded-full bg-[#e6e03b]/[0.33]">
       <CardHeader className="pb-4 relative overflow-hidden">
         <div className={`absolute inset-0 bg-gradient-to-br ${getCurrencyGradient(rate.currency_code)} opacity-5 group-hover:opacity-10 transition-opacity duration-300`}></div>
         
@@ -80,13 +80,11 @@ export const CurrencyCard = ({ rate, language }: CurrencyCardProps) => {
           <div className="flex items-center gap-3">
             <div className="relative">
               <img src={rate.flag_url} alt={rate.currency_name} className="w-12 h-8 rounded-md shadow-lg border-2 border-white" />
-              {isAutoUpdated(rate.currency_code) && (
-                <div className="absolute -top-1 -right-1">
+              {isAutoUpdated(rate.currency_code) && <div className="absolute -top-1 -right-1">
                   <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
                     <Zap size={10} className="text-white" />
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
             
             <div>
@@ -97,16 +95,14 @@ export const CurrencyCard = ({ rate, language }: CurrencyCardProps) => {
             </div>
           </div>
 
-          {isAutoUpdated(rate.currency_code) && (
-            <div className="flex items-center text-xs text-green-600 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
+          {isAutoUpdated(rate.currency_code) && <div className="flex items-center text-xs text-green-600 bg-green-50 px-3 py-1.5 rounded-full border border-green-200 shadow-sm">
               <Clock size={12} className={language === 'ar' ? 'ml-1' : 'mr-1'} />
               <span className="font-medium">{language === 'ar' ? 'تلقائي' : 'Auto'}</span>
-            </div>
-          )}
+            </div>}
         </div>
       </CardHeader>
       
-      <CardContent className="pt-0 relative bg-[#f2f235]/[0.62] rounded-full">
+      <CardContent className="pt-0 relative rounded-none bg-transparent">
         <div className="grid grid-cols-2 gap-4">
           <div className="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-2xl text-center border border-green-200 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
             <div className="flex items-center justify-center mb-3">
@@ -137,15 +133,14 @@ export const CurrencyCard = ({ rate, language }: CurrencyCardProps) => {
           </div>
           <div className="text-xs text-gray-400 mt-1">
             {new Date(rate.updated_at).toLocaleString(language === 'ar' ? 'ar-SA' : 'en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-              day: '2-digit',
-              month: '2-digit',
-              hour12: true
-            })}
+            hour: '2-digit',
+            minute: '2-digit',
+            day: '2-digit',
+            month: '2-digit',
+            hour12: true
+          })}
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
