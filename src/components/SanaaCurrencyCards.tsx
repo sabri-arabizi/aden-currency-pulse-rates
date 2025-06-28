@@ -1,68 +1,74 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ExchangeRate } from '@/hooks/useExchangeRates';
 import { Clock, TrendingUp, TrendingDown } from 'lucide-react';
-
 interface SanaaCurrencyCardsProps {
   rates: ExchangeRate[];
 }
-
-const SanaaCurrencyCards = ({ rates }: SanaaCurrencyCardsProps) => {
+const SanaaCurrencyCards = ({
+  rates
+}: SanaaCurrencyCardsProps) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('ar-SA', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
     }).format(price);
   };
-
   const getCurrencyIcon = (currencyCode: string) => {
     switch (currencyCode) {
-      case 'SAR': return '🇸🇦';
-      case 'AED': return '🇦🇪';
-      case 'USD': return '🇺🇸';
-      case 'EUR': return '🇪🇺';
-      case 'EGP': return '🇪🇬';
-      default: return '💱';
+      case 'SAR':
+        return '🇸🇦';
+      case 'AED':
+        return '🇦🇪';
+      case 'USD':
+        return '🇺🇸';
+      case 'EUR':
+        return '🇪🇺';
+      case 'EGP':
+        return '🇪🇬';
+      default:
+        return '💱';
     }
   };
-
   const getCurrencyGradient = (currencyCode: string) => {
     switch (currencyCode) {
-      case 'SAR': return 'from-emerald-500 via-green-500 to-teal-500';
-      case 'AED': return 'from-red-500 via-rose-500 to-pink-500';
-      case 'USD': return 'from-blue-500 via-indigo-500 to-purple-500';
-      case 'EUR': return 'from-amber-500 via-orange-500 to-yellow-500';
-      case 'EGP': return 'from-violet-500 via-purple-500 to-fuchsia-500';
-      default: return 'from-gray-500 via-slate-500 to-zinc-500';
+      case 'SAR':
+        return 'from-emerald-500 via-green-500 to-teal-500';
+      case 'AED':
+        return 'from-red-500 via-rose-500 to-pink-500';
+      case 'USD':
+        return 'from-blue-500 via-indigo-500 to-purple-500';
+      case 'EUR':
+        return 'from-amber-500 via-orange-500 to-yellow-500';
+      case 'EGP':
+        return 'from-violet-500 via-purple-500 to-fuchsia-500';
+      default:
+        return 'from-gray-500 via-slate-500 to-zinc-500';
     }
   };
-
   const getCurrencyBorderColor = (currencyCode: string) => {
     switch (currencyCode) {
-      case 'SAR': return 'border-emerald-200/50';
-      case 'AED': return 'border-red-200/50';
-      case 'USD': return 'border-blue-200/50';
-      case 'EUR': return 'border-amber-200/50';
-      case 'EGP': return 'border-violet-200/50';
-      default: return 'border-gray-200/50';
+      case 'SAR':
+        return 'border-emerald-200/50';
+      case 'AED':
+        return 'border-red-200/50';
+      case 'USD':
+        return 'border-blue-200/50';
+      case 'EUR':
+        return 'border-amber-200/50';
+      case 'EGP':
+        return 'border-violet-200/50';
+      default:
+        return 'border-gray-200/50';
     }
   };
-
   if (!rates || rates.length === 0) {
-    return (
-      <div className="text-center p-8">
+    return <div className="text-center p-8">
         <div className="text-white/60 text-lg">لا توجد بيانات أسعار صرف متاحة</div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
-      {rates.map((rate) => (
-        <Card 
-          key={`${rate.currency_code}-${rate.city}`} 
-          className={`
+  return <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
+      {rates.map(rate => <Card key={`${rate.currency_code}-${rate.city}`} className={`
             relative overflow-hidden
             bg-white/95 backdrop-blur-sm 
             border-2 ${getCurrencyBorderColor(rate.currency_code)}
@@ -70,8 +76,7 @@ const SanaaCurrencyCards = ({ rates }: SanaaCurrencyCardsProps) => {
             transition-all duration-500 ease-out
             transform hover:scale-105 hover:-translate-y-2
             group cursor-pointer
-          `}
-        >
+          `}>
           {/* خلفية متدرجة خفيفة */}
           <div className={`absolute inset-0 bg-gradient-to-br ${getCurrencyGradient(rate.currency_code)} opacity-5 group-hover:opacity-10 transition-opacity duration-500`} />
           
@@ -128,7 +133,7 @@ const SanaaCurrencyCards = ({ rates }: SanaaCurrencyCardsProps) => {
                   <TrendingDown size={14} className="text-red-600" />
                 </div>
                 <div className="text-xs text-red-700 font-bold mb-2 tracking-wide">بيع</div>
-                <div className="text-xl font-black text-red-800 font-mono">
+                <div className="text-xl font-black text-red-141 font-mono">
                   {formatPrice(rate.sell_price)}
                 </div>
               </div>
@@ -142,12 +147,12 @@ const SanaaCurrencyCards = ({ rates }: SanaaCurrencyCardsProps) => {
               </div>
               <div className="text-center text-xs font-bold text-gray-700">
                 {new Date(rate.updated_at).toLocaleString('ar-SA', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  day: '2-digit',
-                  month: '2-digit',
-                  hour12: true
-                })}
+              hour: '2-digit',
+              minute: '2-digit',
+              day: '2-digit',
+              month: '2-digit',
+              hour12: true
+            })}
               </div>
             </div>
             
@@ -161,10 +166,7 @@ const SanaaCurrencyCards = ({ rates }: SanaaCurrencyCardsProps) => {
 
           {/* تأثير الإضاءة عند التمرير */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-all duration-1000 ease-out" />
-        </Card>
-      ))}
-    </div>
-  );
+        </Card>)}
+    </div>;
 };
-
 export default SanaaCurrencyCards;
