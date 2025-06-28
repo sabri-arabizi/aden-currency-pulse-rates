@@ -111,7 +111,7 @@ const SanaaExchangeTable = ({ rates }: SanaaExchangeTableProps) => {
                     {getLastUpdateTime(rate.updated_at)}
                   </div>
                   <div className="text-xs text-gray-400 mt-1">
-                    {new Date(rate.updated_at).toLocaleString('ar-SA', {
+                    {new Date(rate.updated_at).toLocaleString('en-US', {
                       hour: '2-digit',
                       minute: '2-digit',
                       day: '2-digit',
