@@ -26,7 +26,7 @@ const Index = () => {
   return <div className="min-h-screen bg-gradient-to-br from-amber-900 via-yellow-900 to-amber-800 py-0 relative">
       {/* Background Logo */}
       <div className="fixed bottom-4 left-4 z-0 opacity-20">
-        <img src="/lovable-uploads/53f2e558-f1d9-467f-88bf-47f6983e46bb.png" alt="Background Logo" className="w-32 h-32 object-contain" />
+        
       </div>
 
       {/* Header */}
