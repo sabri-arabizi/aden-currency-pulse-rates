@@ -56,6 +56,15 @@ const Index = () => {
         </div>
       </div>
 
+      {/* إعلان بانر في بداية الشاشة */}
+      <div className="max-w-7xl mx-auto px-4 py-4">
+        <AdMobBanner 
+          position={BannerAdPosition.TOP_CENTER}
+          size={BannerAdSize.LARGE_BANNER}
+          className="w-full h-24 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm"
+        />
+      </div>
+
       {/* City Selector */}
       <div className="max-w-7xl mx-auto py-6 md:py-10 px-4 relative z-10 bg-[#4d4d25]/55">
         <div className="text-center mb-6 md:mb-10">
