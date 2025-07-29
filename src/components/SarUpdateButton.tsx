@@ -42,6 +42,16 @@ const SarUpdateButton = () => {
       setIsUpdating(false);
     }
   };
-  return;
+  return (
+    <Button
+      onClick={handleSarUpdate}
+      disabled={isUpdating}
+      size="sm"
+      className="bg-green-600 hover:bg-green-700 text-white"
+    >
+      <DollarSign className="w-4 h-4 mr-1" />
+      {isUpdating ? 'جاري التحديث...' : 'تحديث SAR'}
+    </Button>
+  );
 };
 export default SarUpdateButton;

@@ -4,6 +4,7 @@ import SarUpdateButton from '@/components/SarUpdateButton';
 import GoldUpdateButton from '@/components/GoldUpdateButton';
 import LanguageToggle from '@/components/LanguageToggle';
 import AdMobBanner from '@/components/AdMobBanner';
+import AdMobAppOpen from '@/components/AdMobAppOpen';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { t } from '@/utils/translations';
@@ -26,6 +27,9 @@ const Index = () => {
     return city;
   };
   return <div className="min-h-screen bg-gradient-to-br from-amber-900 via-yellow-900 to-amber-800 py-0 relative">
+      {/* App Open Ad Component */}
+      <AdMobAppOpen />
+      
       {/* Background Logo */}
       <div className="fixed bottom-4 left-4 z-0 opacity-20">
         
