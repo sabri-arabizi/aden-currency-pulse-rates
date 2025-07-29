@@ -30,6 +30,10 @@ const config: CapacitorConfig = {
       resize: 'body',
       style: 'dark',
       resizeOnFullScreen: true
+    },
+    AdMob: {
+      appId: 'ca-app-pub-3940256099942544~3347511713', // معرف اختبار - يجب استبداله بمعرفك الحقيقي
+      testingDevices: ['YOUR_DEVICE_ID_HERE']
     }
   },
   android: {

@@ -3,9 +3,11 @@ import CurrencyTabs from '@/components/CurrencyTabs';
 import SarUpdateButton from '@/components/SarUpdateButton';
 import GoldUpdateButton from '@/components/GoldUpdateButton';
 import LanguageToggle from '@/components/LanguageToggle';
+import AdMobBanner from '@/components/AdMobBanner';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { t } from '@/utils/translations';
+import { BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState('عدن');
   const {
@@ -86,6 +88,15 @@ const Index = () => {
         </div>
 
         <CurrencyTabs selectedCity={selectedCity} language={language} />
+        
+        {/* إعلان بانر في منتصف الصفحة */}
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <AdMobBanner 
+            position={BannerAdPosition.TOP_CENTER}
+            size={BannerAdSize.ADAPTIVE_BANNER}
+            className="w-full h-20 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm"
+          />
+        </div>
       </div>
 
       {/* Bottom Navigation */}

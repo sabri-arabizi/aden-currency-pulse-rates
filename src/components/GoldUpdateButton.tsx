@@ -42,6 +42,19 @@ const GoldUpdateButton = () => {
       setIsUpdating(false);
     }
   };
-  return;
+  return (
+    <Button
+      onClick={handleGoldUpdate}
+      disabled={isUpdating}
+      variant="outline"
+      size="sm"
+      className="bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-100 border-yellow-400/30 hover:border-yellow-400/50 transition-all duration-300 shadow-lg backdrop-blur-sm"
+    >
+      <Coins className="w-3 h-3 md:w-4 md:h-4 ml-1" />
+      <span className="text-xs md:text-sm font-medium">
+        {isUpdating ? 'جاري التحديث...' : 'ذهب'}
+      </span>
+    </Button>
+  );
 };
 export default GoldUpdateButton;
