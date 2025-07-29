@@ -42,17 +42,6 @@ const GoldUpdateButton = () => {
       setIsUpdating(false);
     }
   };
-  return (
-    <Button
-      onClick={handleGoldUpdate}
-      disabled={isUpdating}
-      variant="outline"
-      size="sm"
-      className="bg-white/10 text-white border-white/20 hover:bg-white/20"
-    >
-      <Coins className={`w-4 h-4 mr-2 ${isUpdating ? 'animate-spin' : ''}`} />
-      {isUpdating ? 'جاري التحديث...' : 'تحديث الذهب'}
-    </Button>
-  );
+  return;
 };
 export default GoldUpdateButton;
