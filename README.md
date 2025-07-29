@@ -1,73 +1,131 @@
-# Welcome to your Lovable project
+# اسعار الصرف اليمن - Yemen Currency Exchange Rates
 
-## Project info
+## وصف التطبيق
+تطبيق لعرض أسعار صرف العملات في اليمن (عدن وصنعاء) مع أسعار الذهب المحدثة لحظياً.
 
-**URL**: https://lovable.dev/projects/eba60485-e67c-44be-9844-41260bc973ea
+## المميزات
+- 📱 تطبيق محمول مع إعلانات AdMob
+- 🏙️ عرض أسعار عدن وصنعاء
+- 💰 أسعار الذهب المحدثة
+- 🔄 تحديث يدوي وتلقائي للأسعار
+- 🌐 دعم اللغتين العربية والإنجليزية
+- 📊 محول العملات
 
-## How can I edit this code?
+## تقنيات المستخدمة
+- React + TypeScript + Vite
+- Tailwind CSS للتصميم
+- Capacitor للتطبيق المحمول
+- Supabase للخلفية وقاعدة البيانات
+- AdMob للإعلانات
 
-There are several ways of editing your application.
+## إعداد التطبيق المحمول
 
-**Use Lovable**
+### متطلبات التطوير
+- Node.js 18+
+- Android Studio (للأندرويد)
+- Xcode (للآيفون - Mac فقط)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/eba60485-e67c-44be-9844-41260bc973ea) and start prompting.
+### خطوات إنشاء APK
 
-Changes made via Lovable will be committed automatically to this repo.
+1. **نقل المشروع إلى GitHub:**
+   - اضغط على زر "Export to GitHub" في Lovable
+   - انسخ المشروع من GitHub الخاص بك
 
-**Use your preferred IDE**
+2. **تثبيت المتطلبات:**
+   ```bash
+   npm install
+   ```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. **إضافة منصة Android:**
+   ```bash
+   npx cap add android
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+4. **تحديث المنصة:**
+   ```bash
+   npx cap update android
+   ```
 
-Follow these steps:
+5. **بناء التطبيق:**
+   ```bash
+   npm run build
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+6. **مزامنة مع Capacitor:**
+   ```bash
+   npx cap sync
+   ```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+7. **فتح مشروع Android:**
+   ```bash
+   npx cap open android
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+8. **بناء APK من Android Studio:**
+   - Build > Build Bundle(s) / APK(s) > Build APK(s)
+   - أو استخدم الأمر: `./gradlew assembleRelease`
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+### ملفات الخلفية المتضمنة
+
+التطبيق يحتوي على ملفات خلفية Supabase Edge Functions:
+
+#### 🔄 وظائف تحديث الأسعار
+- `update-sar-prices/` - تحديث أسعار الريال السعودي
+- `update-aed-prices/` - تحديث أسعار الدرهم الإماراتي  
+- `update-egp-prices/` - تحديث أسعار الجنيه المصري
+- `update-gold-prices/` - تحديث أسعار الذهب
+- `update-sanaa-rates-from-khbr/` - تحديث أسعار صنعاء
+- `update-aden-gold-from-souta/` - تحديث أسعار ذهب عدن
+- `scheduled-sar-update/` - تحديث مجدول للأسعار
+
+#### 🗄️ قاعدة البيانات
+- جداول العملات والأسعار
+- سياسات الأمان (RLS)
+- فهارس محسنة للأداء
+
+### إعداد الإعلانات
+
+#### تكوين AdMob:
+1. إنشاء حساب AdMob من Google
+2. الحصول على App ID ووضعه في `capacitor.config.ts`
+3. إنشاء وحدات إعلانية Banner
+4. استبدال معرفات الاختبار بالمعرفات الحقيقية
+
+### إعدادات مهمة
+
+#### شاشة البداية (Splash Screen):
+- الصورة: `/lovable-uploads/bfcfa1bf-51a8-4cf1-ad10-24a06a782c51.png`
+- المدة: 3 ثوانٍ
+- لون الخلفية: `#8B4513`
+
+#### الإذونات المطلوبة:
+- الإنترنت (لتحديث الأسعار)
+- حالة الشبكة
+- إعلانات AdMob
+
+## بنية المشروع
+
+```
+src/
+├── components/          # مكونات واجهة المستخدم
+├── hooks/              # خطافات React مخصصة
+├── pages/              # صفحات التطبيق
+├── utils/              # أدوات مساعدة
+└── integrations/       # تكامل Supabase
+
+supabase/
+├── functions/          # وظائف الخلفية
+└── config.toml        # إعدادات Supabase
 ```
 
-**Edit a file directly in GitHub**
+## الملاحظات
+- استخدم معرفات AdMob حقيقية في الإنتاج
+- تأكد من تحديث أسماء الحزم قبل النشر
+- اختبر التطبيق على أجهزة حقيقية
+- راجع إعدادات الأمان في Supabase
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/eba60485-e67c-44be-9844-41260bc973ea) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## روابط مفيدة
+- [مشروع Lovable](https://lovable.dev/projects/eba60485-e67c-44be-9844-41260bc973ea)
+- [وثائق Capacitor](https://capacitorjs.com/docs)
+- [وثائق Supabase](https://supabase.com/docs)
+- [وثائق AdMob](https://developers.google.com/admob)

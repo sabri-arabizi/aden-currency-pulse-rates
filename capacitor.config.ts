@@ -19,7 +19,8 @@ const config: CapacitorConfig = {
       spinnerColor: '#FFD700',
       androidScaleType: 'CENTER_CROP',
       splashFullScreen: true,
-      splashImmersive: true
+      splashImmersive: true,
+      splashImageSource: '/lovable-uploads/bfcfa1bf-51a8-4cf1-ad10-24a06a782c51.png'
     },
     StatusBar: {
       style: 'dark',
@@ -45,7 +46,11 @@ const config: CapacitorConfig = {
     allowNavigation: [
       'https://eba60485-e67c-44be-9844-41260bc973ea.lovableproject.com'
     ],
-    backgroundColor: '#8B4513'
+    backgroundColor: '#8B4513',
+    buildOptions: {
+      keystorePath: 'android/app/keystore.jks',
+      releaseType: 'APK'
+    }
   },
   ios: {
     allowsLinkPreview: false,
