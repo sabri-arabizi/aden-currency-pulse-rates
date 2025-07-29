@@ -164,10 +164,7 @@ const CurrencyTabs = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {selectedCity === 'عدن' && <div className="bg-amber-800/10 p-3 rounded-lg">
                   <div className="font-medium">Aden City</div>
-                  <div className="text-xs">
-                    Currencies: ye-rial.com/aden • 2dec.net<br />
-                    Gold: soutalmukawama.com/cat/5
-                  </div>
+                  
                 </div>}
               {selectedCity === 'صنعاء' && <div className="bg-amber-800/10 p-3 rounded-lg">
                   <div className="font-medium">Sanaa City</div>
