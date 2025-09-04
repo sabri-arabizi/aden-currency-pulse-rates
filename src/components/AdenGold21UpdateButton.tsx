@@ -13,8 +13,8 @@ export const AdenGold21UpdateButton = () => {
   const [sellPrice, setSellPrice] = useState('');
   const { toast } = useToast();
 
-  const handleUpdate = async () => {
-    if (!buyPrice || !sellPrice) {
+  const handleUpdate = async (useManualPrices = true) => {
+    if (useManualPrices && (!buyPrice || !sellPrice)) {
       toast({
         title: "خطأ",
         description: "يرجى إدخال أسعار الشراء والبيع",
@@ -25,18 +25,21 @@ export const AdenGold21UpdateButton = () => {
 
     setIsLoading(true);
     try {
+      const requestBody = useManualPrices ? {
+        buy_price: parseFloat(buyPrice),
+        sell_price: parseFloat(sellPrice)
+      } : {};
+
       const { data, error } = await supabase.functions.invoke('update-aden-gold-21-whatsapp', {
-        body: {
-          buy_price: parseFloat(buyPrice),
-          sell_price: parseFloat(sellPrice)
-        }
+        body: requestBody
       });
 
       if (error) throw error;
 
+      const source = data?.source || (useManualPrices ? 'Manual Input' : 'boqash.com');
       toast({
         title: "نجح التحديث",
-        description: "تم تحديث أسعار الذهب عيار 21 لعدن بنجاح",
+        description: `تم تحديث أسعار الذهب عيار 21 لعدن من ${source}`,
       });
 
       setBuyPrice('');
@@ -104,21 +107,32 @@ export const AdenGold21UpdateButton = () => {
         </div>
       </div>
 
-      <Button
-        onClick={handleUpdate}
-        disabled={isLoading}
-        className="w-full"
-        size="sm"
-      >
-        {isLoading ? (
-          <>
-            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-            جاري التحديث...
-          </>
-        ) : (
-          'تحديث الأسعار'
-        )}
-      </Button>
+      <div className="flex gap-2">
+        <Button
+          onClick={() => handleUpdate(true)}
+          disabled={isLoading}
+          className="flex-1"
+          size="sm"
+        >
+          {isLoading ? (
+            <>
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              جاري التحديث...
+            </>
+          ) : (
+            'تحديث يدوي'
+          )}
+        </Button>
+        <Button
+          onClick={() => handleUpdate(false)}
+          disabled={isLoading}
+          variant="outline"
+          className="flex-1"
+          size="sm"
+        >
+          تحديث من boqash.com
+        </Button>
+      </div>
     </Card>
   );
 };
