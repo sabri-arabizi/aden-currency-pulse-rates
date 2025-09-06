@@ -18,26 +18,19 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('🔥 بدء التحليل المحسن لأسعار الجنيه المصري من 2dec.net')
+    console.log('🔥 بدء تحديث أسعار الجنيه المصري من 2dec.net')
 
-    // جلب البيانات من الموقع مع headers محسنة ومتقدمة
-    const response = await fetch('https://2dec.net/rate.htm', {
+    // جلب البيانات من الموقع الصحيح
+    const response = await fetch('https://2dec.net/rate.html', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
         'Accept-Language': 'ar,en-US;q=0.9,en;q=0.8',
         'Accept-Encoding': 'gzip, deflate, br',
         'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-        'Sec-Ch-Ua': '"Not A(Brand";v="99", "Google Chrome";v="121", "Chromium";v="121"',
-        'Sec-Ch-Ua-Mobile': '?0',
-        'Sec-Ch-Ua-Platform': '"Windows"',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-User': '?1',
-        'Upgrade-Insecure-Requests': '1',
-        'Connection': 'keep-alive'
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
       }
     })
 
@@ -46,175 +39,97 @@ serve(async (req) => {
     }
 
     const html = await response.text()
-    console.log('✅ تم جلب HTML من 2dec.net بنجاح، بدء التحليل المتقدم...')
+    console.log('✅ تم جلب HTML من 2dec.net بنجاح')
 
-    // دالة تنظيف وتحويل الأرقام مع دعم كامل للخانات العشرية
-    const cleanAndParseNumber = (numStr: string): number => {
+    // دالة تنظيف الأرقام
+    const cleanNumber = (numStr: string): number => {
       if (!numStr) return 0;
-      
-      // تحويل الأرقام العربية إلى إنجليزية
-      let cleaned = numStr
-        .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d).toString())
-        .replace(/[,،]/g, '') // إزالة الفواصل
-        .replace(/[^\d.]/g, '') // الاحتفاظ بالأرقام والنقاط فقط
-        .trim();
-      
-      const number = parseFloat(cleaned);
-      return isNaN(number) ? 0 : number;
+      const cleaned = numStr.replace(/,/g, '').replace(/٫/g, '.').trim();
+      return parseFloat(cleaned);
     };
 
-    // أنماط البحث المحسنة والمتقدمة للجنيه المصري
-    const egpPatterns = [
-      // البحث في الجداول المنظمة بتفصيل أكبر
-      /<tr[^>]*>[\s\S]*?(?:جنيه\s*مصري|مصري|EGP|egypt|Egyptian)[\s\S]*?<td[^>]*>\s*(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*<\/td>\s*<td[^>]*>\s*(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)\s*<\/td>[\s\S]*?<\/tr>/gi,
-      
-      // البحث في العناصر المباشرة مع شراء وبيع
-      /(?:جنيه\s*مصري|مصري|EGP|egypt)[\s\S]{0,200}?(?:شراء|buy)[\s\S]{0,100}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]{0,200}?(?:بيع|sell)[\s\S]{0,100}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi,
-      
-      // البحث المعكوس بيع ثم شراء
-      /(?:جنيه\s*مصري|مصري|EGP|egypt)[\s\S]{0,200}?(?:بيع|sell)[\s\S]{0,100}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]{0,200}?(?:شراء|buy)[\s\S]{0,100}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi,
-      
-      // البحث في أقسام مخصصة لعدن
-      /(?:عدن|aden)[\s\S]{0,300}?(?:جنيه\s*مصري|مصري|EGP)[\s\S]{0,200}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi,
-      
-      // البحث العام في النص مع تحديد نطاق أكبر
-      /(?:جنيه\s*مصري|egyptian\s*pound|EGP)[\s\S]{0,500}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]{0,100}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi,
-      
-      // البحث في العناصر المنظمة بـ class أو id
-      /<(?:div|span|p)[^>]*(?:class|id)="[^"]*(?:egp|egypt|مصري)[^"]*"[^>]*>[\s\S]*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]*?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]*?<\/(?:div|span|p)>/gi
-    ];
-
-    let egpBuyPrice = 0;
-    let egpSellPrice = 0;
-
-    // البحث المتقدم باستخدام جميع الأنماط
-    for (const pattern of egpPatterns) {
-      const matches = [...html.matchAll(pattern)];
-      for (const match of matches) {
-        if (match && match[1] && match[2]) {
-          const price1 = cleanAndParseNumber(match[1]);
-          const price2 = cleanAndParseNumber(match[2]);
-          
-          // التحقق من صحة الأسعار (نطاق منطقي للجنيه المصري)
-          if (price1 > 0 && price2 > 0 && price1 >= 50 && price1 <= 200 && price2 >= 50 && price2 <= 200) {
-            // تحديد أيهما الشراء وأيهما البيع (عادة الشراء أقل من البيع)
-            egpBuyPrice = Math.min(price1, price2);
-            egpSellPrice = Math.max(price1, price2);
-            console.log(`💰 تم العثور على أسعار EGP متقدمة: شراء ${egpBuyPrice}, بيع ${egpSellPrice}`);
-            break;
-          }
-        }
-      }
-      if (egpBuyPrice > 0 && egpSellPrice > 0) break;
+    // البحث عن قسم عدن أولاً
+    const adenSectionMatch = html.match(/<td[^>]*>\s*عدن\s*<span[^>]*>[\s\S]*?<\/table>/i);
+    if (!adenSectionMatch) {
+      console.log('Could not find Aden section in HTML');
+      throw new Error('لم يتم العثور على قسم عدن في الموقع');
     }
 
-    // إذا لم نجد الأسعار، نبحث في جداول HTML بطريقة أكثر تفصيلاً
-    if (!egpBuyPrice || !egpSellPrice) {
-      console.log('🔍 البحث التفصيلي في جداول HTML...')
+    const adenSection = adenSectionMatch[0];
+    console.log('Found Aden section, searching for EGP prices...');
+
+    // البحث عن سطر الجنيه المصري في قسم عدن
+    const egpRowMatch = adenSection.match(/<tr>[\s\S]*?جنيه مصري[\s\S]*?<\/tr>/i);
+    if (!egpRowMatch) {
+      console.log('Could not find EGP row in Aden section');
+      throw new Error('لم يتم العثور على بيانات الجنيه المصري في قسم عدن');
+    }
+
+    const egpRow = egpRowMatch[0];
+    console.log('Found EGP row:', egpRow.substring(0, 200) + '...');
+
+    // استخراج أسعار البيع والشراء
+    const priceMatches = egpRow.match(/<span[^>]*>([0-9,\.]+)<\/span>/g);
+    if (!priceMatches || priceMatches.length < 2) {
+      console.log('Could not find price spans in EGP row');
+      throw new Error('لم يتم العثور على الأسعار في بيانات الجنيه المصري');
+    }
+
+    // استخراج الأرقام من spans
+    const prices = priceMatches.map(match => {
+      const priceMatch = match.match(/([0-9,\.]+)/);
+      return priceMatch ? cleanNumber(priceMatch[1]) : null;
+    }).filter(price => price !== null && price > 0);
+
+    if (prices.length >= 2) {
+      // في جدول 2dec: العمود الأول هو البيع، والثاني هو الشراء
+      const sellPrice = Math.round(prices[0]);  // بيع - إزالة الجزء العشري
+      const buyPrice = Math.round(prices[1]);   // شراء - إزالة الجزء العشري
       
-      // استخراج جميع الجداول
-      const tablePattern = /<table[^>]*>[\s\S]*?<\/table>/gi
-      const tableMatches = [...html.matchAll(tablePattern)];
+      console.log(`Extracted EGP prices - Sell: ${sellPrice}, Buy: ${buyPrice}`);
       
-      for (const tableMatch of tableMatches) {
-        const tableHtml = tableMatch[0];
+      if (sellPrice && buyPrice && sellPrice > 0 && buyPrice > 0 && sellPrice < 200 && buyPrice < 200) {
+
+        // تحديث الجنيه المصري لكلا المدينتين
+        const updates = [];
         
-        // التحقق من وجود كلمات مفتاحية للجنيه المصري
-        if (tableHtml.includes('مصري') || tableHtml.includes('EGP') || tableHtml.includes('egypt') || tableHtml.includes('Egyptian')) {
-          console.log('📊 وُجدت جدول يحتوي على بيانات الجنيه المصري')
-          
-          // استخراج جميع الأرقام من الجدول
-          const numberPattern = /(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/g
-          const numbers = [...tableHtml.matchAll(numberPattern)]
-            .map(match => cleanAndParseNumber(match[1]))
-            .filter(num => !isNaN(num) && num >= 50 && num <= 200)
-            .sort((a, b) => a - b); // ترتيب تصاعدي
-          
-          if (numbers.length >= 2) {
-            egpBuyPrice = numbers[0]; // أقل رقم عادة يكون الشراء
-            egpSellPrice = numbers[numbers.length - 1]; // أعلى رقم عادة يكون البيع
-            console.log(`📈 أسعار مستخرجة من الجدول - شراء: ${egpBuyPrice}, بيع: ${egpSellPrice}`);
-            break;
+        for (const city of ['عدن', 'صنعاء']) {
+          const { error } = await supabaseClient
+            .from('exchange_rates')
+            .update({
+              buy_price: buyPrice,
+              sell_price: sellPrice,
+              updated_at: new Date().toISOString()
+            })
+            .eq('currency_code', 'EGP')
+            .eq('city', city);
+
+          if (error) {
+            console.error(`❌ خطأ في تحديث EGP لـ ${city}:`, error);
+          } else {
+            console.log(`✅ تم تحديث EGP بنجاح لـ ${city}`);
+            updates.push(`EGP-${city}`);
           }
         }
+
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            message: 'تم تحديث أسعار الجنيه المصري بنجاح من 2dec.net',
+            updates: updates,
+            prices: { buy: buyPrice, sell: sellPrice },
+            source: '2dec.net',
+            timestamp: new Date().toISOString()
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      } else {
+        throw new Error('الأسعار المستخرجة غير صحيحة');
       }
-    }
-
-    // البحث الاحتياطي في النص الكامل
-    if (!egpBuyPrice || !egpSellPrice) {
-      console.log('🎯 البحث الاحتياطي في النص الكامل...')
-      
-      // استخراج جميع الأرقام ذات الصلة
-      const allNumbersPattern = /(\d{2,3}(?:\.\d{1,4})?)/g
-      const allNumbers = [...html.matchAll(allNumbersPattern)]
-        .map(match => cleanAndParseNumber(match[1]))
-        .filter(num => !isNaN(num) && num >= 70 && num <= 85) // نطاق أضيق للجنيه المصري
-        .sort((a, b) => a - b);
-      
-      if (allNumbers.length >= 2) {
-        egpBuyPrice = allNumbers[0];
-        egpSellPrice = allNumbers[allNumbers.length - 1];
-        console.log(`🔧 أسعار احتياطية - شراء: ${egpBuyPrice}, بيع: ${egpSellPrice}`);
-      }
-    }
-
-    console.log(`📊 النتيجة النهائية - EGP شراء: ${egpBuyPrice}, EGP بيع: ${egpSellPrice}`)
-
-    const updates = [];
-
-    if (egpBuyPrice && egpSellPrice && egpBuyPrice > 0 && egpSellPrice > 0) {
-      console.log(`✅ تم العثور على أسعار EGP محسنة - شراء: ${egpBuyPrice}, بيع: ${egpSellPrice}`)
-
-      // تحديث الجنيه المصري لكلا المدينتين
-      for (const city of ['عدن', 'صنعاء']) {
-        const { error } = await supabaseClient
-          .from('exchange_rates')
-          .update({
-            buy_price: egpBuyPrice,
-            sell_price: egpSellPrice,
-            updated_at: new Date().toISOString()
-          })
-          .eq('currency_code', 'EGP')
-          .eq('city', city)
-
-        if (error) {
-          console.error(`❌ خطأ في تحديث EGP لـ ${city}:`, error)
-        } else {
-          console.log(`✅ تم تحديث EGP بنجاح لـ ${city}`)
-          updates.push(`EGP-${city}`)
-        }
-      }
-
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'تم تحديث أسعار الجنيه المصري المحسن بنجاح من 2dec.net',
-          updates: updates,
-          prices: { buy: egpBuyPrice, sell: egpSellPrice },
-          source: '2dec.net',
-          version: '2.0 - Enhanced',
-          timestamp: new Date().toISOString()
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
-      )
     } else {
-      console.log('❌ لم يتم العثور على أسعار EGP صحيحة في محتوى الصفحة')
-      
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          message: 'لم يتم العثور على أسعار الجنيه المصري في الموقع',
-          source: '2dec.net',
-          version: '2.0 - Enhanced',
-          timestamp: new Date().toISOString()
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 404
-        }
-      )
+      throw new Error('لم يتم العثور على أسعار كافية');
     }
 
   } catch (error) {
