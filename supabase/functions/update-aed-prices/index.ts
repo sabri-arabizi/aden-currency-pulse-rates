@@ -71,8 +71,8 @@ serve(async (req) => {
 
         if (prices.length >= 2) {
           // في جدول 2dec: العمود الأول هو البيع، والثاني هو الشراء
-          const sellPrice = prices[0]  // بيع
-          const buyPrice = prices[1]   // شراء
+          const sellPrice = Math.round(prices[0])  // بيع - إزالة الجزء العشري
+          const buyPrice = Math.round(prices[1])   // شراء - إزالة الجزء العشري
           
           console.log(`Extracted AED prices - Sell: ${sellPrice}, Buy: ${buyPrice}`)
           
@@ -142,13 +142,13 @@ serve(async (req) => {
       
       if (usdData) {
         // الدرهم إلى الدولار تقريباً 3.67، لذلك الدرهم إلى الريال = الدولار إلى الريال / 3.67
-        aedBuyPrice = Math.round((usdData.buy_price / 3.67) * 100) / 100
-        aedSellPrice = Math.round((usdData.sell_price / 3.67) * 100) / 100
+        aedBuyPrice = Math.round(usdData.buy_price / 3.67)
+        aedSellPrice = Math.round(usdData.sell_price / 3.67)
         sourceUrl = 'calculated from USD rates'
       } else {
         // أسعار افتراضية
-        aedBuyPrice = 690.0
-        aedSellPrice = 694.0
+        aedBuyPrice = 690
+        aedSellPrice = 694
         sourceUrl = 'default values'
       }
     }
