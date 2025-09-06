@@ -18,15 +18,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('Fetching AED prices from almashhadalaraby.com')
+    console.log('Fetching AED prices from 2dec.net')
     
-    // البحث في عدة صفحات للعثور على أحدث أسعار الدرهم
-    const searchUrls = [
-      'https://almashhadalaraby.com/news/',
-      'https://almashhadalaraby.com/news/514858',
-      'https://almashhadalaraby.com/news/432500'
-    ]
-
+    const targetUrl = 'https://2dec.net/rate.html'
     let aedBuyPrice: number | null = null
     let aedSellPrice: number | null = null
     let sourceUrl = ''
@@ -37,90 +31,101 @@ serve(async (req) => {
       return parseFloat(cleaned)
     }
 
-    // دالة للبحث عن أسعار الدرهم في النص
-    const extractAEDPrices = (html: string) => {
-      // patterns محسنة للبحث عن أسعار الدرهم الإماراتي
-      const aedPatterns = {
-        buy: [
-          /درهم\s*إمارات.*?شراء.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi,
-          /إمارات.*?شراء.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi,
-          /AED.*?شراء.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi,
-          /الدرهم\s*الإماراتي.*?شراء.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi,
-          /إماراتي.*?شراء.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi
-        ],
-        sell: [
-          /درهم\s*إمارات.*?بيع.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi,
-          /إمارات.*?بيع.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi,
-          /AED.*?بيع.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi,
-          /الدرهم\s*الإماراتي.*?بيع.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi,
-          /إماراتي.*?بيع.*?(\d{1,4}(?:[,.]?\d{1,4})*)/gi
-        ]
-      }
-
-      // البحث عن سعر الشراء
-      for (const pattern of aedPatterns.buy) {
-        const match = pattern.exec(html)
-        if (match && match[1]) {
-          const price = cleanNumber(match[1])
-          if (!isNaN(price) && price > 0 && price < 1000) {
-            return { buy: price }
-          }
-        }
-      }
-
-      // البحث عن سعر البيع
-      for (const pattern of aedPatterns.sell) {
-        const match = pattern.exec(html)
-        if (match && match[1]) {
-          const price = cleanNumber(match[1])
-          if (!isNaN(price) && price > 0 && price < 1000) {
-            return { sell: price }
-          }
-        }
-      }
-
-      return null
-    }
-
-    // محاولة الحصول على الأسعار من المواقع المختلفة
-    for (const url of searchUrls) {
+    // دالة للبحث عن أسعار الدرهم الإماراتي من موقع 2dec
+    const extractAEDPricesFrom2dec = (html: string) => {
       try {
-        console.log(`Trying to fetch AED prices from: ${url}`)
+        console.log('Parsing AED prices from 2dec.net...')
         
-        const response = await fetch(url, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'ar,en-US;q=0.5',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1'
+        // البحث عن قسم عدن أولاً
+        const adenSectionMatch = html.match(/<td[^>]*>\s*عدن\s*<span[^>]*>[\s\S]*?<\/table>/i)
+        if (!adenSectionMatch) {
+          console.log('Could not find Aden section in HTML')
+          return null
+        }
+
+        const adenSection = adenSectionMatch[0]
+        console.log('Found Aden section, searching for AED prices...')
+
+        // البحث عن سطر الدرهم الإماراتي في قسم عدن
+        const aedRowMatch = adenSection.match(/<tr>[\s\S]*?درهم اماراتي[\s\S]*?<\/tr>/i)
+        if (!aedRowMatch) {
+          console.log('Could not find AED row in Aden section')
+          return null
+        }
+
+        const aedRow = aedRowMatch[0]
+        console.log('Found AED row:', aedRow.substring(0, 200) + '...')
+
+        // استخراج أسعار البيع والشراء
+        const priceMatches = aedRow.match(/<span[^>]*>([0-9,\.]+)<\/span>/g)
+        if (!priceMatches || priceMatches.length < 2) {
+          console.log('Could not find price spans in AED row')
+          return null
+        }
+
+        // استخراج الأرقام من spans
+        const prices = priceMatches.map(match => {
+          const priceMatch = match.match(/([0-9,\.]+)/)
+          return priceMatch ? cleanNumber(priceMatch[1]) : null
+        }).filter(price => price !== null && price > 0)
+
+        if (prices.length >= 2) {
+          // في جدول 2dec: العمود الأول هو البيع، والثاني هو الشراء
+          const sellPrice = prices[0]  // بيع
+          const buyPrice = prices[1]   // شراء
+          
+          console.log(`Extracted AED prices - Sell: ${sellPrice}, Buy: ${buyPrice}`)
+          
+          if (sellPrice && buyPrice && sellPrice > 0 && buyPrice > 0 && sellPrice < 2000 && buyPrice < 2000) {
+            return { buy: buyPrice, sell: sellPrice }
           }
-        })
-        
-        if (!response.ok) {
-          console.log(`Failed to fetch ${url}: ${response.status}`)
-          continue
         }
-        
-        const html = await response.text()
-        console.log(`Successfully fetched HTML from ${url}, parsing AED prices...`)
-        
-        const prices = extractAEDPrices(html)
-        
-        if (prices?.buy || prices?.sell) {
-          aedBuyPrice = prices.buy || null
-          aedSellPrice = prices.sell || null
-          sourceUrl = url
-          console.log(`Found AED prices from ${url} - Buy: ${aedBuyPrice}, Sell: ${aedSellPrice}`)
-          break
-        }
+
+        console.log('Failed to extract valid AED prices from row')
+        return null
         
       } catch (error) {
-        console.log(`Error fetching from ${url}:`, error.message)
-        continue
+        console.error('Error parsing AED prices:', error)
+        return null
       }
+    }
+
+    // محاولة الحصول على الأسعار من موقع 2dec
+    try {
+      console.log(`Fetching AED prices from: ${targetUrl}`)
+      
+      const response = await fetch(targetUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'ar,en-US;q=0.5',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'DNT': '1',
+          'Connection': 'keep-alive',
+          'Upgrade-Insecure-Requests': '1'
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+      }
+      
+      const html = await response.text()
+      console.log(`Successfully fetched HTML from ${targetUrl}, length: ${html.length}`)
+      
+      const prices = extractAEDPricesFrom2dec(html)
+      
+      if (prices?.buy && prices?.sell) {
+        aedBuyPrice = prices.buy
+        aedSellPrice = prices.sell
+        sourceUrl = targetUrl
+        console.log(`Successfully extracted AED prices - Buy: ${aedBuyPrice}, Sell: ${aedSellPrice}`)
+      } else {
+        throw new Error('Could not extract AED prices from 2dec.net')
+      }
+      
+    } catch (error) {
+      console.error(`Error fetching from ${targetUrl}:`, error.message)
     }
 
     // إذا لم يتم العثور على أسعار، استخدم أسعار افتراضية محسوبة من الدولار
