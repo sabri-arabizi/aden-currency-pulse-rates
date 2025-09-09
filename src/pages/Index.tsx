@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CurrencyTabs from '@/components/CurrencyTabs';
 import SarUpdateButton from '@/components/SarUpdateButton';
-
 import GoldUpdateButton from '@/components/GoldUpdateButton';
 import { AdenGold21UpdateButton } from '@/components/AdenGold21UpdateButton';
 import { AdenAllGoldUpdateButton } from '@/components/AdenAllGoldUpdateButton';
@@ -39,7 +38,7 @@ const Index = () => {
       </div>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4 md:p-6 shadow-2xl relative z-10 my-0 mx-[3px] px-[67px] py-0">
+      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4 md:p-6 shadow-2xl relative z-10 my-0 px-[67px] py-0 mx-px">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 rounded-full p-4 bg-[#eac30d]/90">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center shadow-2xl">
@@ -68,11 +67,7 @@ const Index = () => {
 
       {/* إعلان بانر في بداية الشاشة */}
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <AdMobBanner 
-          position={BannerAdPosition.TOP_CENTER}
-          size={BannerAdSize.LARGE_BANNER}
-          className="w-full h-24 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm"
-        />
+        <AdMobBanner position={BannerAdPosition.TOP_CENTER} size={BannerAdSize.LARGE_BANNER} className="w-full h-24 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm" />
       </div>
 
       {/* City Selector */}
@@ -110,11 +105,7 @@ const Index = () => {
         
         {/* إعلان بانر في منتصف الصفحة */}
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <AdMobBanner 
-            position={BannerAdPosition.TOP_CENTER}
-            size={BannerAdSize.ADAPTIVE_BANNER}
-            className="w-full h-20 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm"
-          />
+          <AdMobBanner position={BannerAdPosition.TOP_CENTER} size={BannerAdSize.ADAPTIVE_BANNER} className="w-full h-20 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm" />
         </div>
       </div>
 
