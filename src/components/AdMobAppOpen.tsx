@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { AdMob } from '@capacitor-community/admob';
+import { AdMob, AdOptions, AdLoadInfo, InterstitialAdPluginEvents } from '@capacitor-community/admob';
 import { Capacitor } from '@capacitor/core';
 
 interface AdMobAppOpenProps {
@@ -8,41 +8,57 @@ interface AdMobAppOpenProps {
 
 const AdMobAppOpen: React.FC<AdMobAppOpenProps> = ({ adId }) => {
   useEffect(() => {
-    const initializeAppOpenAd = async () => {
+    const setupAppOpenAd = async () => {
       try {
         if (!Capacitor.isNativePlatform()) {
           console.log('📱 App Open Ad: متاح فقط في التطبيق المحمول');
           return;
         }
 
-        // تهيئة AdMob
-        await AdMob.initialize({
-          testingDevices: ['YOUR_DEVICE_ID'],
-          initializeForTesting: false
-        });
+        await AdMob.initialize();
 
-        console.log('✅ تم تهيئة AdMob لإعلانات App Open');
+        const showAppOpen = async () => {
+          try {
+            const options: AdOptions = {
+              adId: adId || 'ca-app-pub-7990450110814740/3998012142',
+            };
 
-        // إضافة مستمع للأحداث
-        const handleAppStateChange = () => {
-          if (document.visibilityState === 'visible') {
-            console.log('📱 التطبيق أصبح مرئياً - يمكن عرض App Open Ad هنا');
-            // هنا يمكن إضافة منطق عرض الإعلان عند توفر API مناسب
+            const loadedListener = await AdMob.addListener(
+              InterstitialAdPluginEvents.Loaded,
+              (info: AdLoadInfo) => {
+                console.log('✅ تم تحميل إعلان فتح التطبيق (كإعلان بيني):', info);
+              }
+            );
+
+            await AdMob.prepareInterstitial(options);
+            await AdMob.showInterstitial();
+            loadedListener.remove();
+
+            console.log('✅ تم عرض إعلان فتح التطبيق عند العودة للتطبيق');
+          } catch (e) {
+            console.log('⚠️ قد لا يدعم هذا الإصدار إعلانات فتح التطبيق مباشرة؛ محاولة باستخدام إعلان بيني:', e);
           }
         };
 
-        document.addEventListener('visibilitychange', handleAppStateChange);
-
-        return () => {
-          document.removeEventListener('visibilitychange', handleAppStateChange);
+        const handleVisibility = () => {
+          if (document.visibilityState === 'visible') {
+            showAppOpen();
+          }
         };
 
+        document.addEventListener('visibilitychange', handleVisibility);
+        // عند الإطلاق لأول مرة
+        showAppOpen();
+
+        return () => {
+          document.removeEventListener('visibilitychange', handleVisibility);
+        };
       } catch (err) {
-        console.error('❌ خطأ في تهيئة App Open Ad:', err);
+        console.error('❌ خطأ في إعداد App Open Ad:', err);
       }
     };
 
-    initializeAppOpenAd();
+    setupAppOpenAd();
   }, [adId]);
 
   // App Open Ads تعمل في الخلفية ولا تحتاج UI مرئي

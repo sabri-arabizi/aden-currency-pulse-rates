@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AdMob } from '@capacitor-community/admob';
+import { AdMob, AdOptions, AdLoadInfo, InterstitialAdPluginEvents } from '@capacitor-community/admob';
 import { Capacitor } from '@capacitor/core';
 
 interface AdMobInterstitialProps {
@@ -28,30 +28,26 @@ const AdMobInterstitial: React.FC<AdMobInterstitialProps> = ({
           return;
         }
 
-        // تهيئة AdMob
-        await AdMob.initialize({
-          testingDevices: ['YOUR_DEVICE_ID'],
-          initializeForTesting: false
-        });
+        await AdMob.initialize();
 
-        // إعداد الإعلان البيني
-        const options = {
+        const options: AdOptions = {
           adId: adId || 'ca-app-pub-7990450110814740/4668240145',
-          isTesting: false
         };
 
-        // ملاحظة: prepareInterstitial و showInterstitial قد لا تكونان متاحتين في هذا الإصدار
-        // سنحاول استخدام showBanner بدلاً من ذلك كحل مؤقت
-        try {
-          // محاولة عرض إعلان بيني إذا كان متاحاً
-          console.log('محاولة عرض إعلان بيني...');
-        } catch (interstitialError) {
-          console.log('الإعلانات البينية غير متاحة حالياً:', interstitialError);
-        }
-        
+        const loadedListener = await AdMob.addListener(
+          InterstitialAdPluginEvents.Loaded,
+          (info: AdLoadInfo) => {
+            console.log('✅ تم تحميل الإعلان البيني:', info);
+          }
+        );
+
+        await AdMob.prepareInterstitial(options);
+        await AdMob.showInterstitial();
+
         console.log('✅ تم عرض الإعلان البيني بنجاح');
         setShouldShowAd(false);
 
+        loadedListener.remove();
       } catch (err) {
         console.error('❌ خطأ في عرض الإعلان البيني:', err);
         setShouldShowAd(false);
