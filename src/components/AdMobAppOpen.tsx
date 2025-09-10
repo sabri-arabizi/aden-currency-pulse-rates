@@ -18,7 +18,7 @@ const AdMobAppOpen: React.FC<AdMobAppOpenProps> = ({ adId }) => {
         // تهيئة AdMob
         await AdMob.initialize({
           testingDevices: ['YOUR_DEVICE_ID'],
-          initializeForTesting: true
+          initializeForTesting: false
         });
 
         console.log('✅ تم تهيئة AdMob لإعلانات App Open');

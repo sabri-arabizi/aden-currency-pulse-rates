@@ -7,12 +7,15 @@ import { AdenAllGoldUpdateButton } from '@/components/AdenAllGoldUpdateButton';
 import LanguageToggle from '@/components/LanguageToggle';
 import AdMobBanner from '@/components/AdMobBanner';
 import AdMobAppOpen from '@/components/AdMobAppOpen';
+import AdMobInterstitial from '@/components/AdMobInterstitial';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useRefreshCounter } from '@/hooks/useRefreshCounter';
 import { t } from '@/utils/translations';
 import { BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState('عدن');
+  const { refreshCount } = useRefreshCounter();
   const {
     language,
     changeLanguage
@@ -30,7 +33,10 @@ const Index = () => {
   };
   return <div className="min-h-screen bg-gradient-to-br from-amber-900 via-yellow-900 to-amber-800 py-0 relative">
       {/* App Open Ad Component */}
-      <AdMobAppOpen />
+      <AdMobAppOpen adId="ca-app-pub-7990450110814740/3998012142" />
+      
+      {/* Interstitial Ad Component */}
+      <AdMobInterstitial onRefreshCount={refreshCount} />
       
       {/* Background Logo */}
       <div className="fixed bottom-4 left-4 z-0 opacity-20">
