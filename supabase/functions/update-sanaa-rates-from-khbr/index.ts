@@ -135,8 +135,8 @@ serve(async (req) => {
             'AED': { buy: 690, sell: 695 },
             'EGP': { buy: 50, sell: 52 }
           };
-          buyPrice = defaultPrices[currency.code]?.buy || 0;
-          sellPrice = defaultPrices[currency.code]?.sell || 0;
+          buyPrice = (defaultPrices as any)[currency.code]?.buy || 0;
+          sellPrice = (defaultPrices as any)[currency.code]?.sell || 0;
         }
       }
 
@@ -178,7 +178,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString()
       }),
       { 

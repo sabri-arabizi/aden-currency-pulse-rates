@@ -55,7 +55,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ Backend Server Error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error', message: error.message }), 
+      JSON.stringify({ error: 'Internal server error', message: error instanceof Error ? error.message : 'Unknown error' }), 
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
@@ -213,7 +213,7 @@ async function handleUpdateAll(supabase: any) {
     const adenGold21Response = await supabase.functions.invoke('update-aden-gold-21-whatsapp', {
       body: { manual: true }
     });
-    results.aden_gold_21 = adenGold21Response;
+    (results as any).aden_gold_21 = adenGold21Response;
 
     // Update Sanaa rates
     const sanaaResponse = await supabase.functions.invoke('update-sanaa-rates-from-khbr', {

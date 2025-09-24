@@ -4,6 +4,7 @@ import SarUpdateButton from '@/components/SarUpdateButton';
 import GoldUpdateButton from '@/components/GoldUpdateButton';
 import { AdenGold21UpdateButton } from '@/components/AdenGold21UpdateButton';
 import { AdenAllGoldUpdateButton } from '@/components/AdenAllGoldUpdateButton';
+import TelegramGoldUpdateButton from '@/components/TelegramGoldUpdateButton';
 import LanguageToggle from '@/components/LanguageToggle';
 import AdMobBanner from '@/components/AdMobBanner';
 import AdMobAppOpen from '@/components/AdMobAppOpen';
@@ -64,9 +65,10 @@ const Index = () => {
             <LanguageToggle language={language} onLanguageChange={changeLanguage} />
             <SarUpdateButton />
             
-            <GoldUpdateButton />
-            <AdenGold21UpdateButton />
-            <AdenAllGoldUpdateButton />
+              <GoldUpdateButton />
+              <TelegramGoldUpdateButton />
+              <AdenGold21UpdateButton />
+              <AdenAllGoldUpdateButton />
           </div>
         </div>
       </div>

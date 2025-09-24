@@ -83,8 +83,8 @@ serve(async (req) => {
 
     if (prices.length >= 2) {
       // في جدول 2dec: العمود الأول هو البيع، والثاني هو الشراء
-      const sellPrice = Math.round(prices[0]);  // بيع - إزالة الجزء العشري
-      const buyPrice = Math.round(prices[1]);   // شراء - إزالة الجزء العشري
+      const sellPrice = Math.round(prices[0] || 0);  // بيع - إزالة الجزء العشري
+      const buyPrice = Math.round(prices[1] || 0);   // شراء - إزالة الجزء العشري
       
       console.log(`Extracted EGP prices - Sell: ${sellPrice}, Buy: ${buyPrice}`);
       
@@ -137,7 +137,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         source: '2dec.net',
         version: '2.0 - Enhanced',
         timestamp: new Date().toISOString()

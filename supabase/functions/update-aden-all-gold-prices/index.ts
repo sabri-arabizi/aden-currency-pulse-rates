@@ -22,7 +22,7 @@ serve(async (req) => {
     const body = await req.json().catch(() => ({}))
     
     // Default prices for all gold types in Aden
-    let goldPrices = {
+    let goldPrices: Record<string, { buy: number, sell: number }> = {
       'عيار 24': { buy: 24500, sell: 25000 },
       'عيار 22': { buy: 22400, sell: 22900 },
       'عيار 21': { buy: 21100, sell: 21600 },
@@ -211,7 +211,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString()
       }),
       { 
