@@ -45,18 +45,22 @@ const ManualRefreshButton = () => {
         body: { manual: true }
       });
 
+      // Calculate and update Aden gold prices using local rates
+      const calculatedGoldResponse = await supabase.functions.invoke('update-aden-calculated-gold-prices');
+
       console.log('نتائج التحديث اليدوي:', { 
         sarResponse, 
         aedResponse, 
         egpResponse, 
         adenGoldResponse,
         sanaaRatesResponse,
-        goldResponse 
+        goldResponse,
+        calculatedGoldResponse 
       });
 
       toast({
         title: "تم التحديث اليدوي بنجاح ✅",
-        description: "تم تحديث أسعار جميع العملات والذهب يدوياً (الجدولة التلقائية متوقفة)",
+        description: "تم تحديث أسعار جميع العملات والذهب المحسوب يدوياً (الجدولة التلقائية متوقفة)",
         duration: 5000,
       });
 
