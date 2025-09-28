@@ -180,9 +180,14 @@ serve(async (req) => {
       console.log('⚠️ لم يتم العثور على أسعار USD صحيحة');
     }
 
+    // تحديث أسعار الذهب تلقائياً بناءً على التغيير في أسعار الصرف
+    console.log('🔄 تحديث أسعار الذهب تلقائياً...')
+    const goldUpdateResponse = await supabaseClient.functions.invoke('update-gold-dynamic-aden')
+    console.log('📈 نتيجة تحديث الذهب:', goldUpdateResponse)
+
     return new Response(
       JSON.stringify({ 
-        success: true, 
+        success: true,
         message: 'تم تحديث أسعار SAR و USD المحسن بنجاح',
         updates: updates,
         extractedPrices: {
