@@ -30,10 +30,6 @@ const ManualRefreshButton = () => {
         body: { manual: true }
       });
 
-      // Update Gold prices for Aden from new source
-      const adenGoldResponse = await supabase.functions.invoke('update-aden-gold-from-souta', {
-        body: { manual: true }
-      });
 
       // Update Sanaa exchange rates from khbr.me
       const sanaaRatesResponse = await supabase.functions.invoke('update-sanaa-rates-from-khbr', {
@@ -51,8 +47,7 @@ const ManualRefreshButton = () => {
       console.log('نتائج التحديث اليدوي:', { 
         sarResponse, 
         aedResponse, 
-        egpResponse, 
-        adenGoldResponse,
+        egpResponse,
         sanaaRatesResponse,
         goldResponse,
         dynamicGoldResponse 
