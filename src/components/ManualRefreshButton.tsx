@@ -15,34 +15,44 @@ const ManualRefreshButton = () => {
     try {
       console.log('🔄 بدء التحديث اليدوي لجميع الأسعار...');
 
-      // Update SAR and USD prices for Aden
+      // Step 1: Update all exchange rates first
+      console.log('📊 الخطوة 1: تحديث أسعار الصرف...');
+      
       const sarResponse = await supabase.functions.invoke('update-sar-prices', {
         body: { manual: true }
       });
 
-      // Update AED prices for Aden
       const aedResponse = await supabase.functions.invoke('update-aed-prices', {
         body: { manual: true }
       });
 
-      // Update EGP prices for Aden from the new source
       const egpResponse = await supabase.functions.invoke('update-egp-from-2dec', {
         body: { manual: true }
       });
 
-
-      // Update Sanaa exchange rates from khbr.me
       const sanaaRatesResponse = await supabase.functions.invoke('update-sanaa-rates-from-khbr', {
         body: { manual: true }
       });
 
-      // Update Gold prices for both cities from yemennownews
+      console.log('✅ تم تحديث أسعار الصرف بنجاح');
+
+      // Step 2: Update dynamic gold prices based on new exchange rates
+      console.log('💰 الخطوة 2: تحديث أسعار الذهب الديناميكي لعدن...');
+      
+      const dynamicGoldResponse = await supabase.functions.invoke('update-gold-dynamic-aden', {
+        body: { manual: true }
+      });
+
+      console.log('✅ تم تحديث أسعار الذهب الديناميكي بنجاح');
+
+      // Step 3: Update gold prices from external sources
+      console.log('📰 الخطوة 3: تحديث أسعار الذهب من المصادر الخارجية...');
+      
       const goldResponse = await supabase.functions.invoke('update-gold-prices', {
         body: { manual: true }
       });
 
-      // Calculate and update Aden gold prices using dynamic rates
-      const dynamicGoldResponse = await supabase.functions.invoke('update-gold-dynamic-aden');
+      console.log('✅ اكتمل التحديث اليدوي بنجاح');
 
       console.log('نتائج التحديث اليدوي:', { 
         sarResponse, 
