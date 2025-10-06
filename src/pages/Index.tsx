@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CurrencyTabs from '@/components/CurrencyTabs';
 import SarUpdateButton from '@/components/SarUpdateButton';
-import GoldUpdateButton from '@/components/GoldUpdateButton';
-import { AdenGold21UpdateButton } from '@/components/AdenGold21UpdateButton';
-import { AdenAllGoldUpdateButton } from '@/components/AdenAllGoldUpdateButton';
-import TelegramGoldUpdateButton from '@/components/TelegramGoldUpdateButton';
-import { CalculatedGoldUpdateButton } from '@/components/CalculatedGoldUpdateButton';
 import { DynamicGoldUpdateButton } from '@/components/DynamicGoldUpdateButton';
 import LanguageToggle from '@/components/LanguageToggle';
 import AdMobBanner from '@/components/AdMobBanner';
@@ -66,13 +61,7 @@ const Index = () => {
           <div className="flex gap-2 md:gap-3 items-center flex-wrap justify-center">
             <LanguageToggle language={language} onLanguageChange={changeLanguage} />
             <SarUpdateButton />
-            
-              <GoldUpdateButton />
-              <TelegramGoldUpdateButton />
-              <CalculatedGoldUpdateButton />
-              <DynamicGoldUpdateButton />
-              <AdenGold21UpdateButton />
-              <AdenAllGoldUpdateButton />
+            <DynamicGoldUpdateButton />
           </div>
         </div>
       </div>

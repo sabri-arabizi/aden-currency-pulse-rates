@@ -43,15 +43,6 @@ const ManualRefreshButton = () => {
         body: { manual: true }
       });
 
-      console.log('✅ تم تحديث أسعار الذهب الديناميكي بنجاح');
-
-      // Step 3: Update gold prices from external sources
-      console.log('📰 الخطوة 3: تحديث أسعار الذهب من المصادر الخارجية...');
-      
-      const goldResponse = await supabase.functions.invoke('update-gold-prices', {
-        body: { manual: true }
-      });
-
       console.log('✅ اكتمل التحديث اليدوي بنجاح');
 
       console.log('نتائج التحديث اليدوي:', { 
@@ -59,13 +50,12 @@ const ManualRefreshButton = () => {
         aedResponse, 
         egpResponse,
         sanaaRatesResponse,
-        goldResponse,
         dynamicGoldResponse 
       });
 
       toast({
         title: "تم التحديث اليدوي بنجاح ✅",
-        description: "تم تحديث أسعار جميع العملات والذهب الديناميكي يدوياً (الجدولة التلقائية متوقفة)",
+        description: "تم تحديث أسعار الصرف وأسعار الذهب الديناميكي بنجاح",
         duration: 5000,
       });
 
