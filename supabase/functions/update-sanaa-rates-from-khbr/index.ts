@@ -81,15 +81,14 @@ serve(async (req) => {
       /(?:جنيه\s*مصري|مصري|EGP)[\s\S]{0,100}?بيع[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)[\s\S]{0,100}?شراء[\s\S]{0,50}?(\d+(?:[,.]?\d+)*(?:\.\d{1,4})?)/gi
     ];
 
-    const currencies = [
+    // معالجة العملات المتوفرة في موقع صنعاء فقط (SAR و USD)
+    const sanaaMainCurrencies = [
       { code: 'SAR', name: 'ريال سعودي', patterns: sarPatterns },
-      { code: 'USD', name: 'دولار أمريكي', patterns: usdPatterns },
-      { code: 'AED', name: 'درهم إماراتي', patterns: aedPatterns },
-      { code: 'EGP', name: 'جنيه مصري', patterns: egpPatterns }
+      { code: 'USD', name: 'دولار أمريكي', patterns: usdPatterns }
     ];
 
-    // معالجة كل عملة
-    for (const currency of currencies) {
+    // تحديث العملات الرئيسية من الموقع
+    for (const currency of sanaaMainCurrencies) {
       let buyPrice = 0, sellPrice = 0;
 
       // البحث عن الأسعار
@@ -104,40 +103,12 @@ serve(async (req) => {
               // تحديد أيهما الشراء وأيهما البيع (عادة الشراء أقل من البيع)
               buyPrice = Math.min(price1, price2);
               sellPrice = Math.max(price1, price2);
-              console.log(`🏦 تم العثور على أسعار ${currency.code}: شراء ${buyPrice}, بيع ${sellPrice}`);
+              console.log(`🏦 تم العثور على أسعار ${currency.code} من ye-rial.com/sanaa: شراء ${buyPrice}, بيع ${sellPrice}`);
               break;
             }
           }
         }
         if (buyPrice > 0 && sellPrice > 0) break;
-      }
-
-      // إذا لم يتم العثور على أسعار، احسب من الدولار أو استخدم أسعار افتراضية
-      if (buyPrice === 0 || sellPrice === 0) {
-        console.log(`⚠️ لم يتم العثور على أسعار ${currency.code} صحيحة، سيتم استخدام أسعار عدن`);
-        
-        // الحصول على أسعار عدن كنموذج
-        const { data: adenRate } = await supabaseClient
-          .from('exchange_rates')
-          .select('buy_price, sell_price')
-          .eq('currency_code', currency.code)
-          .eq('city', 'عدن')
-          .single();
-
-        if (adenRate) {
-          buyPrice = adenRate.buy_price;
-          sellPrice = adenRate.sell_price;
-        } else {
-          // أسعار افتراضية
-          const defaultPrices = {
-            'SAR': { buy: 675, sell: 680 },
-            'USD': { buy: 2540, sell: 2550 },
-            'AED': { buy: 690, sell: 695 },
-            'EGP': { buy: 50, sell: 52 }
-          };
-          buyPrice = (defaultPrices as any)[currency.code]?.buy || 0;
-          sellPrice = (defaultPrices as any)[currency.code]?.sell || 0;
-        }
       }
 
       if (buyPrice > 0 && sellPrice > 0) {
@@ -154,11 +125,17 @@ serve(async (req) => {
         if (error) {
           console.error(`❌ خطأ في تحديث ${currency.name} لصنعاء:`, error);
         } else {
-          console.log(`✅ تم تحديث ${currency.name} بنجاح لصنعاء`);
-          updates.push(`${currency.code}-صنعاء`);
+          console.log(`✅ تم تحديث ${currency.name} بنجاح لصنعاء من الموقع`);
+          updates.push(`${currency.code}-صنعاء-updated`);
         }
+      } else {
+        console.log(`⚠️ لم يتم العثور على أسعار ${currency.code} في الموقع`);
       }
     }
+
+    // العملات الثانوية (AED و EGP) تبقى كما هي في صنعاء
+    // لا يتم تحديثها من هذه الدالة
+    console.log('ℹ️ عملات AED و EGP تبقى على أسعارها الحالية في صنعاء');
 
     return new Response(
       JSON.stringify({ 
