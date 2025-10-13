@@ -162,28 +162,29 @@ serve(async (req) => {
     
     console.log(`Final AED prices - Buy: ${aedBuyPrice}, Sell: ${aedSellPrice} from ${sourceUrl}`)
     
-    // تحديث قاعدة البيانات لكلا المدينتين
-    const cities = ['عدن', 'صنعاء']
+    // تحديث قاعدة البيانات لعدن فقط (صنعاء لها أسعار ثابتة)
     const updates = []
     
-    for (const city of cities) {
-      const { error } = await supabaseClient
-        .from('exchange_rates')
-        .update({
-          buy_price: aedBuyPrice,
-          sell_price: aedSellPrice,
-          updated_at: new Date().toISOString()
-        })
-        .eq('currency_code', 'AED')
-        .eq('city', city)
-      
-      if (error) {
-        console.error(`Error updating AED for ${city}:`, error)
-      } else {
-        console.log(`Successfully updated AED prices for ${city}`)
-        updates.push(`AED-${city}`)
-      }
+    // تحديث عدن فقط
+    const { error: adenError } = await supabaseClient
+      .from('exchange_rates')
+      .update({
+        buy_price: aedBuyPrice,
+        sell_price: aedSellPrice,
+        updated_at: new Date().toISOString()
+      })
+      .eq('currency_code', 'AED')
+      .eq('city', 'عدن')
+    
+    if (adenError) {
+      console.error('Error updating AED for عدن:', adenError)
+    } else {
+      console.log('Successfully updated AED prices for عدن')
+      updates.push('AED-عدن')
     }
+    
+    // صنعاء لها أسعار ثابتة (لا يتم تحديثها)
+    console.log('ℹ️ أسعار الدرهم الإماراتي في صنعاء ثابتة ولا يتم تحديثها')
 
     // تحديث أسعار الذهب تلقائياً بناءً على التغيير في أسعار الصرف
     console.log('🔄 تحديث أسعار الذهب تلقائياً...')
