@@ -1,1 +1,4 @@
 project_id = "lgkexjmtzmcwfbkockwj"
+
+[functions.update-gold-sanaa]
+verify_jwt = false
