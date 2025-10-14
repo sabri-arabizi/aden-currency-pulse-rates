@@ -36,10 +36,16 @@ const ManualRefreshButton = () => {
 
       console.log('✅ تم تحديث أسعار الصرف بنجاح');
 
-      // Step 2: Update dynamic gold prices based on new exchange rates
-      console.log('💰 الخطوة 2: تحديث أسعار الذهب الديناميكي لعدن...');
+      // Step 2: Update gold prices
+      console.log('💰 الخطوة 2: تحديث أسعار الذهب...');
       
+      // Update Aden gold prices (dynamic based on exchange rates)
       const dynamicGoldResponse = await supabase.functions.invoke('update-gold-dynamic-aden', {
+        body: { manual: true }
+      });
+
+      // Update Sanaa gold prices (from zoza.top)
+      const sanaaGoldResponse = await supabase.functions.invoke('update-gold-sanaa-zoza', {
         body: { manual: true }
       });
 
@@ -50,12 +56,13 @@ const ManualRefreshButton = () => {
         aedResponse, 
         egpResponse,
         sanaaRatesResponse,
-        dynamicGoldResponse 
+        dynamicGoldResponse,
+        sanaaGoldResponse
       });
 
       toast({
         title: "تم التحديث اليدوي بنجاح ✅",
-        description: "تم تحديث أسعار الصرف وأسعار الذهب الديناميكي بنجاح",
+        description: "تم تحديث أسعار الصرف وأسعار الذهب لعدن وصنعاء بنجاح",
         duration: 5000,
       });
 

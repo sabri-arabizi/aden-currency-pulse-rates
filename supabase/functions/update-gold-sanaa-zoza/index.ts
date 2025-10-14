@@ -25,10 +25,22 @@ serve(async (req) => {
 
     // Step 2: Parse gold prices from HTML
     const extractGoldPrice = (html: string, karat: string): number | null => {
-      const pattern = new RegExp(`سعر جرام ذهب عيار ${karat} في اليمن صنعاء : ([\\d.]+) ريال يمني`, 'i');
-      const match = html.match(pattern);
-      if (match && match[1]) {
-        return parseFloat(match[1]);
+      // Try different patterns to match the price
+      const patterns = [
+        new RegExp(`سعر جرام ذهب عيار ${karat} في اليمن صنعاء\\s*:\\s*([\\d.,]+)\\s*ريال يمني`, 'i'),
+        new RegExp(`عيار ${karat}.*?([\\d.,]+)\\s*ريال`, 'i'),
+      ];
+      
+      for (const pattern of patterns) {
+        const match = html.match(pattern);
+        if (match && match[1]) {
+          // Remove any commas and parse as float
+          const cleanPrice = match[1].replace(/,/g, '');
+          const price = parseFloat(cleanPrice);
+          if (!isNaN(price) && price > 0) {
+            return price;
+          }
+        }
       }
       return null;
     };
@@ -48,28 +60,29 @@ serve(async (req) => {
     }
 
     // Step 3: Calculate buy and sell prices
-    // Buy price = base price from website
-    // Sell price = base price + markup (we'll use 300 YER as a standard markup per gram)
-    const markup = 300; // Markup per gram in YER
+    // The prices from zoza.top are base market prices
+    // For buy price: we'll use base price - 500 YER (to simulate buying from customers)
+    // For sell price: we'll use base price (to simulate selling to customers)
+    const buyDiscount = 500; // Discount when buying from customers
 
     const goldTypes = [
       { 
         type: 'عيار 18', 
         basePrice: gold18,
-        buyPrice: Math.round(gold18),
-        sellPrice: Math.round(gold18 + markup)
+        buyPrice: Math.round(gold18 - buyDiscount),
+        sellPrice: Math.round(gold18)
       },
       { 
         type: 'عيار 21', 
         basePrice: gold21,
-        buyPrice: Math.round(gold21),
-        sellPrice: Math.round(gold21 + markup)
+        buyPrice: Math.round(gold21 - buyDiscount),
+        sellPrice: Math.round(gold21)
       },
       { 
         type: 'عيار 24', 
         basePrice: gold24,
-        buyPrice: Math.round(gold24),
-        sellPrice: Math.round(gold24 + markup)
+        buyPrice: Math.round(gold24 - buyDiscount),
+        sellPrice: Math.round(gold24)
       },
     ];
 
@@ -83,7 +96,7 @@ serve(async (req) => {
         basePriceYER: gold.basePrice,
         buyPriceYER: gold.buyPrice,
         sellPriceYER: gold.sellPrice,
-        markup: markup
+        buyDiscount: buyDiscount
       });
 
       console.log(`✨ ${gold.type}:`, {
@@ -149,7 +162,7 @@ serve(async (req) => {
         updatedTypes: updates,
         calculations: calculationResults,
         source: 'zoza.top',
-        note: 'سعر الشراء = السعر الأساسي، سعر البيع = السعر الأساسي + 300 ريال يمني'
+        note: 'سعر الشراء = السعر الأساسي - 500 ريال يمني، سعر البيع = السعر الأساسي'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
