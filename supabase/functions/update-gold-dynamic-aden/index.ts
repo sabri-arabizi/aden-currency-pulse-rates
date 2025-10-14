@@ -56,7 +56,8 @@ serve(async (req) => {
     for (const [carat, basePriceSAR] of Object.entries(goldBasePrices)) {
       // تحويل السعر من الريال السعودي إلى الريال اليمني
       const buyPriceYER = Math.round(basePriceSAR * sarRate.buy_price)
-      const sellPriceYER = Math.round(basePriceSAR * sarRate.sell_price)
+      // إضافة 15000 ريال يمني لسعر البيع
+      const sellPriceYER = Math.round(basePriceSAR * sarRate.sell_price) + 15000
 
       console.log(`💰 حساب عيار ${carat}: ${basePriceSAR} ريال سعودي = شراء ${buyPriceYER}, بيع ${sellPriceYER} ريال يمني`)
 
@@ -66,7 +67,8 @@ serve(async (req) => {
         buyPriceYER,
         sellPriceYER,
         sarBuyRate: sarRate.buy_price,
-        sarSellRate: sarRate.sell_price
+        sarSellRate: sarRate.sell_price,
+        sellMarkup: 15000
       })
 
       // التحقق من وجود السجل
@@ -128,7 +130,7 @@ serve(async (req) => {
         exchangeRates: {
           SAR: sarRate
         },
-        formula: 'السعر الأساسي (ريال سعودي) × سعر صرف الريال السعودي',
+        formula: 'السعر الأساسي (ريال سعودي) × سعر صرف الريال السعودي + 15000 ريال يمني لسعر البيع',
         timestamp: new Date().toISOString(),
         source: 'تحديث ديناميكي بناءً على أسعار الصرف'
       }),
