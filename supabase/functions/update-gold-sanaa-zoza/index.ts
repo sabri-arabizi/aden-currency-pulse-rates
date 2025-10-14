@@ -62,27 +62,28 @@ serve(async (req) => {
     // Step 3: Calculate buy and sell prices
     // The prices from zoza.top are base market prices
     // For buy price: we'll use base price - 500 YER (to simulate buying from customers)
-    // For sell price: we'll use base price (to simulate selling to customers)
+    // For sell price: we'll use base price + 5000 YER (to simulate selling to customers)
     const buyDiscount = 500; // Discount when buying from customers
+    const sellMarkup = 5000; // Markup when selling to customers
 
     const goldTypes = [
       { 
         type: 'عيار 18', 
         basePrice: gold18,
         buyPrice: Math.round(gold18 - buyDiscount),
-        sellPrice: Math.round(gold18)
+        sellPrice: Math.round(gold18 + sellMarkup)
       },
       { 
         type: 'عيار 21', 
         basePrice: gold21,
         buyPrice: Math.round(gold21 - buyDiscount),
-        sellPrice: Math.round(gold21)
+        sellPrice: Math.round(gold21 + sellMarkup)
       },
       { 
         type: 'عيار 24', 
         basePrice: gold24,
         buyPrice: Math.round(gold24 - buyDiscount),
-        sellPrice: Math.round(gold24)
+        sellPrice: Math.round(gold24 + sellMarkup)
       },
     ];
 
@@ -162,7 +163,7 @@ serve(async (req) => {
         updatedTypes: updates,
         calculations: calculationResults,
         source: 'zoza.top',
-        note: 'سعر الشراء = السعر الأساسي - 500 ريال يمني، سعر البيع = السعر الأساسي'
+        note: 'سعر الشراء = السعر الأساسي - 500 ريال يمني، سعر البيع = السعر الأساسي + 5000 ريال يمني'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
