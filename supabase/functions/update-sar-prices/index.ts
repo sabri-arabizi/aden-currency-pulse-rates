@@ -180,10 +180,8 @@ serve(async (req) => {
       console.log('⚠️ لم يتم العثور على أسعار USD صحيحة');
     }
 
-    // تحديث أسعار الذهب تلقائياً بناءً على التغيير في أسعار الصرف
-    console.log('🔄 تحديث أسعار الذهب تلقائياً...')
-    const goldUpdateResponse = await supabaseClient.functions.invoke('update-gold-dynamic-aden')
-    console.log('📈 نتيجة تحديث الذهب:', goldUpdateResponse)
+    // أسعار الذهب يتم تحديثها يدوياً فقط من قبل المستخدم
+    console.log('ℹ️ أسعار الذهب في عدن وصنعاء يتم تحديثها يدوياً فقط')
 
     return new Response(
       JSON.stringify({ 
