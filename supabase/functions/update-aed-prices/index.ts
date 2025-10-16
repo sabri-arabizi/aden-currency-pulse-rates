@@ -185,11 +185,7 @@ serve(async (req) => {
     
     // صنعاء لها أسعار ثابتة (لا يتم تحديثها)
     console.log('ℹ️ أسعار الدرهم الإماراتي في صنعاء ثابتة ولا يتم تحديثها')
-
-    // تحديث أسعار الذهب تلقائياً بناءً على التغيير في أسعار الصرف
-    console.log('🔄 تحديث أسعار الذهب تلقائياً...')
-    const goldUpdateResponse = await supabaseClient.functions.invoke('update-gold-dynamic-aden')
-    console.log('📈 نتيجة تحديث الذهب:', goldUpdateResponse)
+    console.log('ℹ️ أسعار الذهب في عدن يتم تحديثها يدوياً فقط من قبل المستخدم')
 
     return new Response(
       JSON.stringify({ 
