@@ -168,7 +168,7 @@ const CurrencyTabs = ({
                   <div className="font-medium">Sanaa City</div>
                   <div className="text-xs">
                     Currencies: ye-rial.com/sanaa<br />
-                    Gold: yemennownews.com
+                    Gold: zoza.top
                   </div>
                 </div>}
             </div>

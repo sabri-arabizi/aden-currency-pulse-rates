@@ -203,18 +203,6 @@ async function handleUpdateAll(supabase: any) {
     });
     results.egp_update = egpResponse;
 
-    // Update Gold prices
-    const goldResponse = await supabase.functions.invoke('update-gold-prices', {
-      body: { manual: true }
-    });
-    results.gold_update = goldResponse;
-
-    // Update Aden Gold 21-karat from WhatsApp
-    const adenGold21Response = await supabase.functions.invoke('update-aden-gold-21-whatsapp', {
-      body: { manual: true }
-    });
-    (results as any).aden_gold_21 = adenGold21Response;
-
     // Update Sanaa rates
     const sanaaResponse = await supabase.functions.invoke('update-sanaa-rates-from-khbr', {
       body: { manual: true }
