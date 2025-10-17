@@ -19,39 +19,16 @@ serve(async (req) => {
 
     console.log('🥇 بدء التحديث الديناميكي لأسعار الذهب في عدن بناءً على أسعار الصرف')
 
-    // جلب أسعار الذهب العالمية من API
-    let goldBasePrices: { [key: string]: number } = {
-      '24': 510.50, // ريال سعودي للجرام (محدث أكتوبر 2025)
-      '22': 467.96,
-      '21': 446.69,
-      '18': 382.88
+    // الأسعار الأساسية الثابتة للذهب بالريال السعودي (محدثة أكتوبر 2025)
+    // ⚠️ هذه الأسعار لن تتغير تلقائياً - يجب تحديثها يدوياً في الكود عند الحاجة
+    const goldBasePrices: { [key: string]: number } = {
+      '24': 510.50, // ريال سعودي للجرام - عيار 24
+      '22': 467.96, // ريال سعودي للجرام - عيار 22 (510.50 × 22/24)
+      '21': 446.69, // ريال سعودي للجرام - عيار 21 (510.50 × 21/24)
+      '18': 382.88  // ريال سعودي للجرام - عيار 18 (510.50 × 18/24)
     }
 
-    try {
-      // محاولة جلب الأسعار من مصدر خارجي
-      const goldApiResponse = await fetch('https://www.goldapi.io/api/XAU/SAR', {
-        headers: {
-          'x-access-token': 'goldapi-demo-key' // استخدام مفتاح تجريبي
-        }
-      })
-      
-      if (goldApiResponse.ok) {
-        const goldData = await goldApiResponse.json()
-        const pricePerGram = goldData.price_gram_24k
-        
-        if (pricePerGram && pricePerGram > 0) {
-          goldBasePrices = {
-            '24': pricePerGram,
-            '22': pricePerGram * 0.9167, // 22/24
-            '21': pricePerGram * 0.875,  // 21/24
-            '18': pricePerGram * 0.75    // 18/24
-          }
-          console.log('✅ تم جلب أسعار الذهب من API:', goldBasePrices)
-        }
-      }
-    } catch (error) {
-      console.log('⚠️ لم يتم جلب الأسعار من API، سيتم استخدام الأسعار الافتراضية:', error)
-    }
+    console.log('📊 الأسعار الأساسية المستخدمة (ثابتة):', goldBasePrices)
 
     // الحصول على أسعار الصرف الحالية لعدن
     const { data: exchangeRates, error: exchangeError } = await supabaseClient
