@@ -8,6 +8,9 @@ import { GoldCard } from './GoldCard';
 import SanaaCurrencyCards from './SanaaCurrencyCards';
 import CurrencyConverter from './CurrencyConverter';
 import ManualRefreshButton from './ManualRefreshButton';
+import UnityBanner from './UnityBanner';
+import UnityInterstitial from './UnityInterstitial';
+import UnityRewarded from './UnityRewarded';
 import { t } from '@/utils/translations';
 interface CurrencyTabsProps {
   selectedCity: string;
@@ -18,6 +21,7 @@ const CurrencyTabs = ({
   language
 }: CurrencyTabsProps) => {
   const [activeTab, setActiveTab] = React.useState('currencies');
+  const [showGoldInterstitial, setShowGoldInterstitial] = React.useState(false);
   const {
     data: exchangeRates,
     isLoading: ratesLoading,
@@ -49,7 +53,21 @@ const CurrencyTabs = ({
     }
     return city;
   };
+  
+  // عرض الإعلان البيني عند الانتقال لتبويب الذهب
+  React.useEffect(() => {
+    if (activeTab === 'gold') {
+      setShowGoldInterstitial(true);
+    } else {
+      setShowGoldInterstitial(false);
+    }
+  }, [activeTab]);
+
   return <div className="w-full max-w-7xl py-0 px-0 bg-[#733f27]/55 my-0 mx-0 rounded-none">
+      {/* Unity Ads Components */}
+      <UnityBanner delaySeconds={7} />
+      <UnityInterstitial delaySeconds={7} trigger={showGoldInterstitial} />
+      
       {/* Manual Refresh Button */}
       <div className="flex justify-center mb-8">
         <ManualRefreshButton />
@@ -142,6 +160,12 @@ const CurrencyTabs = ({
               </div>
             </div>
             <CurrencyConverter rates={exchangeRates || []} language={language} />
+            {/* Unity Rewarded Ad في قسم التحويل */}
+            <UnityRewarded 
+              delaySeconds={7} 
+              buttonText={language === 'ar' ? 'شاهد إعلان للحصول على مكافأة' : 'Watch Ad for Reward'}
+              onRewardEarned={() => console.log('Reward earned!')}
+            />
           </div>}
       </div>
 

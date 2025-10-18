@@ -32,10 +32,6 @@ const config: CapacitorConfig = {
       style: 'dark',
       resizeOnFullScreen: true
     },
-    AdMob: {
-      appId: 'ca-app-pub-7990450110814740~3959304534',
-      testingDevices: ['YOUR_DEVICE_ID_HERE']
-    },
     UnityAds: {
       gameId: '5736234',
       testMode: false

@@ -3,14 +3,10 @@ import CurrencyTabs from '@/components/CurrencyTabs';
 import SarUpdateButton from '@/components/SarUpdateButton';
 import { DynamicGoldUpdateButton } from '@/components/DynamicGoldUpdateButton';
 import LanguageToggle from '@/components/LanguageToggle';
-import AdMobBanner from '@/components/AdMobBanner';
-import AdMobAppOpen from '@/components/AdMobAppOpen';
-import AdMobInterstitial from '@/components/AdMobInterstitial';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRefreshCounter } from '@/hooks/useRefreshCounter';
 import { t } from '@/utils/translations';
-import { BannerAdPosition, BannerAdSize } from '@capacitor-community/admob';
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState('عدن');
   const { refreshCount } = useRefreshCounter();
@@ -30,12 +26,6 @@ const Index = () => {
     return city;
   };
   return <div className="min-h-screen bg-gradient-to-br from-amber-900 via-yellow-900 to-amber-800 py-0 relative">
-      {/* App Open Ad Component */}
-      <AdMobAppOpen adId="ca-app-pub-7990450110814740/3998012142" />
-      
-      {/* Interstitial Ad Component */}
-      <AdMobInterstitial onRefreshCount={refreshCount} />
-      
       {/* Background Logo */}
       <div className="fixed bottom-4 left-4 z-0 opacity-20">
         
@@ -64,11 +54,6 @@ const Index = () => {
             <DynamicGoldUpdateButton />
           </div>
         </div>
-      </div>
-
-      {/* إعلان بانر في بداية الشاشة */}
-      <div className="max-w-7xl mx-auto px-4 py-4">
-        <AdMobBanner position={BannerAdPosition.TOP_CENTER} size={BannerAdSize.LARGE_BANNER} className="w-full h-24 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm" />
       </div>
 
       {/* City Selector */}
@@ -103,11 +88,6 @@ const Index = () => {
         </div>
 
         <CurrencyTabs selectedCity={selectedCity} language={language} />
-        
-        {/* إعلان بانر في منتصف الصفحة */}
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <AdMobBanner position={BannerAdPosition.TOP_CENTER} size={BannerAdSize.ADAPTIVE_BANNER} className="w-full h-20 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm" />
-        </div>
       </div>
 
       {/* Bottom Navigation */}
