@@ -12,14 +12,6 @@
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
-  /* تصغير الواجهة بنسبة 50% */
-  #root {
-    transform: scale(0.5);
-    transform-origin: top center;
-    width: 200%;
-    margin: 0 auto;
-  }
 }
 
 /* تحسينات للهواتف المحمولة */

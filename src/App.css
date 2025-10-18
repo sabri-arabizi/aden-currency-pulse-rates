@@ -1,8 +1,42 @@
+/* تصغير الواجهة بنسبة 50% */
 #root {
-  max-width: 1280px;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
+  font-size: 0.5rem;
+}
+
+/* تصغير جميع العناصر */
+#root * {
+  font-size: inherit;
+}
+
+#root h1 {
+  font-size: 1.5em;
+}
+
+#root h2 {
+  font-size: 1.3em;
+}
+
+#root h3 {
+  font-size: 1.1em;
+}
+
+#root button,
+#root input,
+#root select {
+  font-size: 1em;
+  padding: 0.4rem 0.8rem;
+}
+
+#root .text-sm {
+  font-size: 0.875em;
+}
+
+#root .text-xs {
+  font-size: 0.75em;
 }
 
 .logo {
