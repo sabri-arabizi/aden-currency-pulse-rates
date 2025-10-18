@@ -32,6 +32,15 @@ const CurrencyTabs = ({
     isLoading: goldLoading,
     error: goldError
   } = useGoldPrices(selectedCity);
+  // Show interstitial ad when the 'gold' tab is active (must be before any early returns)
+  React.useEffect(() => {
+    if (activeTab === 'gold') {
+      setShowGoldInterstitial(true);
+    } else {
+      setShowGoldInterstitial(false);
+    }
+  }, [activeTab]);
+
   if (ratesLoading || goldLoading) {
     return <div className="flex justify-center items-center h-40">
         <div className="relative">
@@ -55,13 +64,6 @@ const CurrencyTabs = ({
   };
   
   // عرض الإعلان البيني عند الانتقال لتبويب الذهب
-  React.useEffect(() => {
-    if (activeTab === 'gold') {
-      setShowGoldInterstitial(true);
-    } else {
-      setShowGoldInterstitial(false);
-    }
-  }, [activeTab]);
 
   return <div className="w-full max-w-7xl py-0 px-0 bg-[#733f27]/55 my-0 mx-0 rounded-none">
       {/* Unity Ads Components */}
