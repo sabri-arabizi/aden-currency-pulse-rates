@@ -11,6 +11,8 @@ import ManualRefreshButton from './ManualRefreshButton';
 import UnityBanner from './UnityBanner';
 import UnityInterstitial from './UnityInterstitial';
 import UnityRewarded from './UnityRewarded';
+import { DynamicGoldUpdateButton } from './DynamicGoldUpdateButton';
+import { SanaaGoldUpdateButton } from './SanaaGoldUpdateButton';
 import { t } from '@/utils/translations';
 interface CurrencyTabsProps {
   selectedCity: string;
@@ -137,9 +139,12 @@ const CurrencyTabs = ({
                   <Coins size={32} className="text-yellow-400" />
                   {t('goldPrices', language)} - {getCityName(selectedCity)}
                 </h2>
-                <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
+                <div className="flex items-center justify-center gap-2 text-white/80 text-sm mb-4">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  
+                  <span>{language === 'ar' ? 'أسعار حية ومحدثة' : 'Live Updated Prices'}</span>
+                </div>
+                <div className="flex justify-center">
+                  {selectedCity === 'عدن' ? <DynamicGoldUpdateButton /> : <SanaaGoldUpdateButton />}
                 </div>
               </div>
             </div>
