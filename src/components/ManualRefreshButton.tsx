@@ -66,6 +66,9 @@ const ManualRefreshButton = () => {
         duration: 5000,
       });
 
+      // Reload the page to fetch fresh data
+      window.location.reload();
+
     } catch (error) {
       console.error('Error in manual refresh:', error);
       toast({
