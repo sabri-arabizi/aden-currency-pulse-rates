@@ -1,0 +1,56 @@
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* تحسينات للهواتف المحمولة */
+@media (max-width: 768px) {
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* تحسين التمرير للهواتف */
+  body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* تحسين الأزرار للمس */
+  button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* تحسين النصوص للقراءة على الشاشات الصغيرة */
+  .text-responsive {
+    font-size: clamp(0.875rem, 2.5vw, 1.125rem);
+  }
+}
+
+/* تحسينات PWA */
+@media (display-mode: standalone) {
+  body {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+/* تحسين الأداء */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scroll-smooth {
+  scroll-behavior: smooth;
+}

@@ -1,0 +1,76 @@
+/* تصغير الواجهة بنسبة 50% */
+#root {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.5rem;
+}
+
+/* تصغير جميع العناصر */
+#root * {
+  font-size: inherit;
+}
+
+#root h1 {
+  font-size: 1.5em;
+}
+
+#root h2 {
+  font-size: 1.3em;
+}
+
+#root h3 {
+  font-size: 1.1em;
+}
+
+#root button,
+#root input,
+#root select {
+  font-size: 1em;
+  padding: 0.4rem 0.8rem;
+}
+
+#root .text-sm {
+  font-size: 0.875em;
+}
+
+#root .text-xs {
+  font-size: 0.75em;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
