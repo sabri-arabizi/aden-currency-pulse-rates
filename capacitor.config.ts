@@ -35,7 +35,7 @@ const config: CapacitorConfig = {
       resizeOnFullScreen: true
     },
     UnityAds: {
-      gameId: '5736234',
+      gameId: '5967793',
       testMode: false
     }
   },

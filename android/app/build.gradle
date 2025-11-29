@@ -28,6 +28,8 @@ dependencies {
     testImplementation "junit:junit:${rootProject.ext.junitVersion}"
     androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.androidxJunitVersion}"
     androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.androidxEspressoCoreVersion}"
+
+    // Unity Ads
     implementation 'com.unity3d.ads:unity-ads:4.16.4'
 }
 

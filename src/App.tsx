@@ -23,10 +23,10 @@ const App = () => {
   const [showInterstitialTrigger, setShowInterstitialTrigger] = useState(false);
 
   useEffect(() => {
-    // Consider app mount as "load complete"; show interstitial after 10s
+    // Consider app mount as "load complete"; show interstitial after 20s
     const timer = setTimeout(() => {
       setShowInterstitialTrigger(true);
-    }, 10000);
+    }, 20000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -34,10 +34,10 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        {/* Global banner shown on all pages after its internal delay (20s) */}
+        {/* Global banner shown on all pages after its internal delay (10s) */}
         <UnityBanner />
-        {/* Global interstitial: shows once after 10s of app load completion */}
-        <UnityInterstitial delaySeconds={10} trigger={showInterstitialTrigger} />
+        {/* Global interstitial: shows once after 20s of app load completion */}
+        <UnityInterstitial delaySeconds={20} trigger={showInterstitialTrigger} />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />

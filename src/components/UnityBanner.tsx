@@ -9,7 +9,7 @@ interface UnityBannerProps {
 }
 
 const UnityBanner: React.FC<UnityBannerProps> = ({ 
-  delaySeconds = 20,
+  delaySeconds = 10,
   className = "w-full h-16 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm flex items-center justify-center"
 }) => {
   const [isVisible, setIsVisible] = useState(false);
