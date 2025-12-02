@@ -2,5 +2,6 @@
     "geminicodeassist.agentDebugMode": true,
     "geminicodeassist.agentYoloMode": true,
     "geminicodeassist.codeGenerationPaneViewEnabled": true,
-    "gemini-cli.debug.logging.enabled": true
+    "gemini-cli.debug.logging.enabled": true,
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
