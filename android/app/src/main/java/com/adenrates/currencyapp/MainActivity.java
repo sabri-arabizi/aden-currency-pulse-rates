@@ -7,6 +7,9 @@ import com.unity3d.ads.UnityAds;
 public class MainActivity extends BridgeActivity {
     String unityGameID = "5967793";
     Boolean testMode = false;
+    String bannerPlacement = "Banner_Android";
+    String interstitialPlacement = "Interstitial_Android";
+    String rewardedVideoPlacement = "Rewarded_Android";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

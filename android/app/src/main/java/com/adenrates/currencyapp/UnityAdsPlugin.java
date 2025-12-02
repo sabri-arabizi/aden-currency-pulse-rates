@@ -6,8 +6,8 @@ import android.view.View;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.JSObject;
-import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.InvocationHandler;
@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @CapacitorPlugin(name = "UnityAds")
 public class UnityAdsPlugin extends Plugin {
     private static final String TAG = "UnityAdsPlugin";
-    private boolean initialized = false;
-    private String gameId = "5967793";
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
+    private String gameId;
 
     // Reflection-based Unity Ads integration to avoid compile-time dependency
     private Object unityListener = null;
@@ -129,7 +129,7 @@ public class UnityAdsPlugin extends Plugin {
             call.reject("Missing gameId");
             return;
         }
-        this.gameId = gid;
+        gameId = gid;
         final Context context = getContext();
         final View bridgeView = (View) getBridge().getWebView();
         // Do reflection and listener creation off the UI thread to avoid blocking UI.
@@ -209,7 +209,7 @@ public class UnityAdsPlugin extends Plugin {
                     Log.w(TAG, "isInitialized check failed", e);
                 }
 
-                initialized = isInit;
+                initialized.set(isInit);
                 JSObject res = new JSObject();
                 res.put("initialized", initialized);
                 notifyListeners("unityAdsInitialized", res);
