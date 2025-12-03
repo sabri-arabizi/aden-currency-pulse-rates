@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import UnityNative from '@/lib/capacitorUnityAds';
 import {
-  UNITY_GAME_ID_ANDROID,
   UNITY_PLACEMENT_INTERSTITIAL_ANDROID
 } from '@/lib/unityAds';
 
@@ -23,7 +22,16 @@ const UnityInterstitial: React.FC<UnityInterstitialProps> = ({
       setCanShow(true);
     }, delaySeconds * 1000);
 
-    return () => clearTimeout(timer);
+    const unityAdsListener = UnityNative.addListener('unityAdsFinish', (data) => {
+      if (data.placement === UNITY_PLACEMENT_INTERSTITIAL_ANDROID) {
+        console.log('Unity Interstitial Ad finished.');
+      }
+    });
+
+    return () => {
+      clearTimeout(timer);
+      unityAdsListener.remove();
+    };
   }, [delaySeconds]);
 
   useEffect(() => {

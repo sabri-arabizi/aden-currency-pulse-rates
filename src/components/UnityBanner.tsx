@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import UnityNative from '@/lib/capacitorUnityAds';
-import { UNITY_GAME_ID_ANDROID, UNITY_PLACEMENT_BANNER_ANDROID } from '@/lib/unityAds';
+import { UNITY_PLACEMENT_BANNER_ANDROID } from '@/lib/unityAds';
 
 interface UnityBannerProps {
   delaySeconds?: number;
@@ -29,8 +29,14 @@ const UnityBanner: React.FC<UnityBannerProps> = ({
 
     const timer = setTimeout(() => {
       setIsVisible(true);
-      initializeUnityBanner();
+      showBannerAd();
     }, delaySeconds * 1000);
+
+    const unityAdsListener = UnityNative.addListener('unityAdsBannerRequested', (data) => {
+      if (data.placement === UNITY_PLACEMENT_BANNER_ANDROID) {
+        console.log('Unity Banner Ad requested.');
+      }
+    });
 
     return () => {
       clearTimeout(timer);
@@ -39,17 +45,17 @@ const UnityBanner: React.FC<UnityBannerProps> = ({
         // Clear the mounted flag on unmount so new banners can appear later if needed
         win.__unityBannerMounted = false;
       }
+      unityAdsListener.remove();
     };
   }, [delaySeconds]);
 
-  const initializeUnityBanner = async () => {
+  const showBannerAd = async () => {
     try {
       if (!Capacitor.isNativePlatform()) {
         setAdLoaded(true);
         return;
       }
       // Call native plugin to show/init banner (native stub)
-      await UnityNative.initialize(UNITY_GAME_ID_ANDROID);
       await UnityNative.showBanner(UNITY_PLACEMENT_BANNER_ANDROID, 'bottom');
       console.log(`Unity Banner Ad: Requested native init placement=${UNITY_PLACEMENT_BANNER_ANDROID}`);
       setAdLoaded(true);

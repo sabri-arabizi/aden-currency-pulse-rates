@@ -9,6 +9,9 @@ import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import UnityBanner from '@/components/UnityBanner';
 import UnityInterstitial from '@/components/UnityInterstitial';
+import { Capacitor } from '@capacitor/core';
+import UnityNative from '@/lib/capacitorUnityAds';
+import { UNITY_GAME_ID_ANDROID } from '@/lib/unityAds';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,6 +26,19 @@ const App = () => {
   const [showInterstitialTrigger, setShowInterstitialTrigger] = useState(false);
 
   useEffect(() => {
+    const initializeAds = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          await UnityNative.initialize(UNITY_GAME_ID_ANDROID);
+          console.log('Unity Ads initialized successfully');
+        } catch (error) {
+          console.error('Error initializing Unity Ads:', error);
+        }
+      }
+    };
+
+    initializeAds();
+
     // Consider app mount as "load complete"; show interstitial after 20s
     const timer = setTimeout(() => {
       setShowInterstitialTrigger(true);

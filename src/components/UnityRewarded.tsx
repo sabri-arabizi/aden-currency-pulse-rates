@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Capacitor } from '@capacitor/core';
 import UnityNative from '@/lib/capacitorUnityAds';
 import {
-  UNITY_GAME_ID_ANDROID,
   UNITY_PLACEMENT_REWARDED_ANDROID
 } from '@/lib/unityAds';
 import { Button } from '@/components/ui/button';
@@ -17,8 +16,7 @@ interface UnityRewardedProps {
 const UnityRewarded: React.FC<UnityRewardedProps> = ({ 
   delaySeconds = 15,
   buttonText = 'شاهد إعلان للحصول على مكافأة',
-  onRewardEarned 
-  ,
+  onRewardEarned,
   autoShow = false
 }) => {
   const [isReady, setIsReady] = useState(false);
@@ -28,11 +26,20 @@ const UnityRewarded: React.FC<UnityRewardedProps> = ({
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsReady(true);
-      loadRewardedAd();
     }, delaySeconds * 1000);
 
-    return () => clearTimeout(timer);
-  }, [delaySeconds]);
+    const unityAdsListener = UnityNative.addListener('unityAdsFinish', (data) => {
+      if (data.placement === UNITY_PLACEMENT_REWARDED_ANDROID && data.rewarded) {
+        onRewardEarned?.();
+      }
+      setIsLoading(false);
+    });
+
+    return () => {
+      clearTimeout(timer);
+      unityAdsListener.remove();
+    };
+  }, [delaySeconds, onRewardEarned]);
 
   // Auto-show when ready (for example: in prices section after load)
   useEffect(() => {
@@ -42,20 +49,6 @@ const UnityRewarded: React.FC<UnityRewardedProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isReady, autoShow, hasShownAuto]);
-
-  const loadRewardedAd = async () => {
-    try {
-      if (!Capacitor.isNativePlatform()) {
-        console.log('Unity Rewarded Ad: متاح فقط في التطبيق المحمول');
-        return;
-      }
-      // Call native plugin to prepare/load rewarded ad (native stub)
-      await UnityNative.initialize(UNITY_GAME_ID_ANDROID);
-      console.log('Unity Rewarded Ad: Loading (native stub)...');
-    } catch (error) {
-      console.error('Unity Rewarded Ad Error:', error);
-    }
-  };
 
   const showRewardedAd = async () => {
     if (!isReady) return;
@@ -73,12 +66,6 @@ const UnityRewarded: React.FC<UnityRewardedProps> = ({
         // Call native plugin to show rewarded (native stub)
         await UnityNative.showRewarded(UNITY_PLACEMENT_REWARDED_ANDROID);
         console.log(`Unity Rewarded Ad: Requested native show placement=${UNITY_PLACEMENT_REWARDED_ANDROID}`);
-        // We don't have native callbacks yet; simulate reward after short delay
-        setTimeout(() => {
-          onRewardEarned?.();
-          setIsLoading(false);
-          loadRewardedAd(); // Load next ad
-        }, 2000);
     } catch (error) {
       console.error('Unity Rewarded Ad Error:', error);
       setIsLoading(false);
