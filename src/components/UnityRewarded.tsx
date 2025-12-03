@@ -13,7 +13,7 @@ interface UnityRewardedProps {
   autoShow?: boolean; // if true, show rewarded automatically when ready
 }
 
-const UnityRewarded: React.FC<UnityRewardedProps> = ({ 
+const UnityRewarded: React.FC<UnityRewardedProps> = ({
   delaySeconds = 15,
   buttonText = 'شاهد إعلان للحصول على مكافأة',
   onRewardEarned,
@@ -28,8 +28,8 @@ const UnityRewarded: React.FC<UnityRewardedProps> = ({
       setIsReady(true);
     }, delaySeconds * 1000);
 
-    const unityAdsListener = UnityNative.addListener('unityAdsFinish', (data) => {
-      if (data.placement === UNITY_PLACEMENT_REWARDED_ANDROID && data.rewarded) {
+    const unityAdsListener = UnityNative.addListener('unityAdsShowComplete', (data) => {
+      if (data.placement === UNITY_PLACEMENT_REWARDED_ANDROID && (data.state === 'COMPLETED' || data.rewarded === true)) {
         onRewardEarned?.();
       }
       setIsLoading(false);
@@ -52,7 +52,7 @@ const UnityRewarded: React.FC<UnityRewardedProps> = ({
 
   const showRewardedAd = async () => {
     if (!isReady) return;
-    
+
     setIsLoading(true);
     try {
       if (!Capacitor.isNativePlatform()) {
@@ -63,9 +63,9 @@ const UnityRewarded: React.FC<UnityRewardedProps> = ({
         }, 1000);
         return;
       }
-        // Call native plugin to show rewarded (native stub)
-        await UnityNative.showRewarded(UNITY_PLACEMENT_REWARDED_ANDROID);
-        console.log(`Unity Rewarded Ad: Requested native show placement=${UNITY_PLACEMENT_REWARDED_ANDROID}`);
+      // Call native plugin to show rewarded (native stub)
+      await UnityNative.showRewarded(UNITY_PLACEMENT_REWARDED_ANDROID);
+      console.log(`Unity Rewarded Ad: Requested native show placement=${UNITY_PLACEMENT_REWARDED_ANDROID}`);
     } catch (error) {
       console.error('Unity Rewarded Ad Error:', error);
       setIsLoading(false);

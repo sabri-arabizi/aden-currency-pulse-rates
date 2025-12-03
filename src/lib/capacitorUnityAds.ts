@@ -73,7 +73,7 @@ export function addListener(eventName: string, callback: (data: any) => void) {
   } catch (e) {
     // ignore
   }
-  return { remove: () => {} };
+  return { remove: () => { } };
 }
 
 export default {
@@ -81,4 +81,5 @@ export default {
   showInterstitial,
   showRewarded,
   showBanner,
+  addListener,
 };

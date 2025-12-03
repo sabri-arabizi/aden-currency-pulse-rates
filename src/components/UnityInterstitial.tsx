@@ -10,9 +10,9 @@ interface UnityInterstitialProps {
   trigger?: boolean;
 }
 
-const UnityInterstitial: React.FC<UnityInterstitialProps> = ({ 
+const UnityInterstitial: React.FC<UnityInterstitialProps> = ({
   delaySeconds = 10,
-  trigger = false 
+  trigger = false
 }) => {
   const [canShow, setCanShow] = useState(false);
   const [hasShown, setHasShown] = useState(false);
@@ -22,7 +22,7 @@ const UnityInterstitial: React.FC<UnityInterstitialProps> = ({
       setCanShow(true);
     }, delaySeconds * 1000);
 
-    const unityAdsListener = UnityNative.addListener('unityAdsFinish', (data) => {
+    const unityAdsListener = UnityNative.addListener('unityAdsShowComplete', (data) => {
       if (data.placement === UNITY_PLACEMENT_INTERSTITIAL_ANDROID) {
         console.log('Unity Interstitial Ad finished.');
       }

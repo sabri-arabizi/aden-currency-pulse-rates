@@ -8,7 +8,7 @@ interface UnityBannerProps {
   className?: string;
 }
 
-const UnityBanner: React.FC<UnityBannerProps> = ({ 
+const UnityBanner: React.FC<UnityBannerProps> = ({
   delaySeconds = 10,
   className = "w-full h-16 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm flex items-center justify-center"
 }) => {
@@ -32,9 +32,10 @@ const UnityBanner: React.FC<UnityBannerProps> = ({
       showBannerAd();
     }, delaySeconds * 1000);
 
-    const unityAdsListener = UnityNative.addListener('unityAdsBannerRequested', (data) => {
+    const unityAdsListener = UnityNative.addListener('unityAdsBannerLoaded', (data) => {
       if (data.placement === UNITY_PLACEMENT_BANNER_ANDROID) {
-        console.log('Unity Banner Ad requested.');
+        console.log('Unity Banner Ad loaded.');
+        setAdLoaded(true);
       }
     });
 
@@ -58,7 +59,7 @@ const UnityBanner: React.FC<UnityBannerProps> = ({
       // Call native plugin to show/init banner (native stub)
       await UnityNative.showBanner(UNITY_PLACEMENT_BANNER_ANDROID, 'bottom');
       console.log(`Unity Banner Ad: Requested native init placement=${UNITY_PLACEMENT_BANNER_ANDROID}`);
-      setAdLoaded(true);
+      // setAdLoaded(true) will be called when 'unityAdsBannerLoaded' event fires
     } catch (error) {
       console.error('Unity Banner Ad Error:', error);
     }
