@@ -4,78 +4,71 @@ import UnityNative from '@/lib/capacitorUnityAds';
 import { UNITY_PLACEMENT_BANNER_ANDROID } from '@/lib/unityAds';
 
 interface UnityBannerProps {
-  delaySeconds?: number;
+  isInitialized: boolean;
   className?: string;
 }
 
 const UnityBanner: React.FC<UnityBannerProps> = ({
-  delaySeconds = 10,
+  isInitialized,
   className = "w-full h-16 bg-amber-900/20 rounded-lg border border-amber-300/30 backdrop-blur-sm flex items-center justify-center"
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
   const [adLoaded, setAdLoaded] = useState(false);
 
   useEffect(() => {
-    // Prevent multiple banners showing at once across the app
-    if (typeof window !== 'undefined') {
-      const win = window as any;
-      if (win.__unityBannerMounted) {
-        // Another UnityBanner instance is already mounted; do not show this one
-        return;
-      }
-      // Mark as mounted so subsequent instances won't render
-      win.__unityBannerMounted = true;
-    }
+    if (!isInitialized) return;
 
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-      showBannerAd();
-    }, delaySeconds * 1000);
+    let refreshInterval: NodeJS.Timeout;
+
+    const loadBanner = async () => {
+      if (Capacitor.isNativePlatform()) {
+        try {
+          console.log('📱 Requesting Unity Banner (TOP_CENTER)...');
+          await UnityNative.showBanner(UNITY_PLACEMENT_BANNER_ANDROID, 'TOP_CENTER');
+        } catch (error) {
+          console.error('❌ Unity Banner Error:', error);
+        }
+      } else {
+        setAdLoaded(true); // Web fallback
+      }
+    };
+
+    // Initial load
+    loadBanner();
+
+    // Refresh every 60 seconds
+    refreshInterval = setInterval(() => {
+      console.log('♻️ Refreshing Unity Banner...');
+      loadBanner();
+    }, 60000);
 
     const unityAdsListener = UnityNative.addListener('unityAdsBannerLoaded', (data) => {
       if (data.placement === UNITY_PLACEMENT_BANNER_ANDROID) {
-        console.log('Unity Banner Ad loaded.');
+        console.log('✅ Unity Banner Ad loaded.');
         setAdLoaded(true);
       }
     });
 
     return () => {
-      clearTimeout(timer);
-      if (typeof window !== 'undefined') {
-        const win = window as any;
-        // Clear the mounted flag on unmount so new banners can appear later if needed
-        win.__unityBannerMounted = false;
-      }
+      clearInterval(refreshInterval);
       unityAdsListener.remove();
-    };
-  }, [delaySeconds]);
-
-  const showBannerAd = async () => {
-    try {
-      if (!Capacitor.isNativePlatform()) {
-        setAdLoaded(true);
-        return;
+      if (Capacitor.isNativePlatform()) {
+        // Optional: Hide banner on unmount if you want to clear it
+        // UnityNative.hideBanner(); 
       }
-      // Call native plugin to show/init banner (native stub)
-      await UnityNative.showBanner(UNITY_PLACEMENT_BANNER_ANDROID, 'bottom');
-      console.log(`Unity Banner Ad: Requested native init placement=${UNITY_PLACEMENT_BANNER_ANDROID}`);
-      // setAdLoaded(true) will be called when 'unityAdsBannerLoaded' event fires
-    } catch (error) {
-      console.error('Unity Banner Ad Error:', error);
-    }
-  };
+    };
+  }, [isInitialized]);
 
-  if (!isVisible) return null;
+  if (!isInitialized) return null;
 
-  // في بيئة الويب، عرض placeholder
+  // Web Placeholder
   if (!Capacitor.isNativePlatform()) {
     return (
       <div className={className}>
         <div className="text-center p-2">
           <div className="bg-yellow-500/20 rounded p-2 border border-yellow-400/30">
-            <span className="text-yellow-300 text-sm">📱 Unity Banner Ad</span>
+            <span className="text-yellow-300 text-sm">📱 Unity Banner Ad (Top)</span>
             <div className="text-xs mt-1 text-yellow-300/80">
-              سيظهر الإعلان الحقيقي في التطبيق المحمول
+              Refreshes every 60s
             </div>
           </div>
         </div>
@@ -85,7 +78,12 @@ const UnityBanner: React.FC<UnityBannerProps> = ({
 
   return adLoaded ? (
     <div className={className}>
-      <div className="text-yellow-300 text-sm">Unity Banner Ad Area</div>
+      {/* The native banner sits on top of the webview, this div just reserves space if needed, 
+          but for TOP_CENTER overlay, we might not need space here. 
+          However, keeping it for layout consistency if the user wants it inline. 
+          If it's an overlay, this div might be empty or hidden. 
+          Let's keep it as a spacer. */}
+      <div className="text-yellow-300 text-sm opacity-0">Unity Banner Ad Area</div>
     </div>
   ) : null;
 };

@@ -25,25 +25,24 @@ const queryClient = new QueryClient({
 const App = () => {
   const [showInterstitialTrigger, setShowInterstitialTrigger] = useState(false);
 
+  const [isAdInitialized, setIsAdInitialized] = useState(false);
+
   useEffect(() => {
-    const initializeAds = async () => {
+    console.log('🚀 App Mounted: Unity Ads Logic Loaded (v2)');
+    const initTimer = setTimeout(async () => {
       if (Capacitor.isNativePlatform()) {
         try {
-          await UnityNative.initialize(UNITY_GAME_ID_ANDROID);
-          console.log('Unity Ads initialized successfully');
+          console.log('⏰ 20s passed: Initializing Unity Ads...');
+          await UnityNative.initialize(UNITY_GAME_ID_ANDROID, true);
+          console.log('✅ Unity Ads initialized successfully');
+          setIsAdInitialized(true);
         } catch (error) {
-          console.error('Error initializing Unity Ads:', error);
+          console.error('❌ Error initializing Unity Ads:', error);
         }
       }
-    };
+    }, 20000); // 20 seconds delay
 
-    initializeAds();
-
-    // Consider app mount as "load complete"; show interstitial after 20s
-    const timer = setTimeout(() => {
-      setShowInterstitialTrigger(true);
-    }, 20000);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(initTimer);
   }, []);
 
   return (
@@ -51,9 +50,8 @@ const App = () => {
       <TooltipProvider>
         <Toaster />
         {/* Global banner shown on all pages after its internal delay (10s) */}
-        <UnityBanner />
-        {/* Global interstitial: shows once after 20s of app load completion */}
-        <UnityInterstitial delaySeconds={20} trigger={showInterstitialTrigger} />
+        {/* Global banner shown after initialization */}
+        <UnityBanner isInitialized={isAdInitialized} />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />

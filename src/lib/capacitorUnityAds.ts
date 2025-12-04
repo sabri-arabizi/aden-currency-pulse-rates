@@ -1,6 +1,6 @@
 // Simple Capacitor wrapper for Unity Ads plugin (native stubs)
 type UnityAdsPlugin = {
-  initialize?: (options: { gameId: string }) => Promise<any>;
+  initialize?: (options: { gameId: string; testMode?: boolean }) => Promise<any>;
   showInterstitial?: (options: { placement: string }) => Promise<any>;
   showRewarded?: (options: { placement: string }) => Promise<any>;
   showBanner?: (options: { placement: string; position?: string }) => Promise<any>;
@@ -28,10 +28,10 @@ function getPlugin(): UnityAdsPlugin | null {
   return null;
 }
 
-export async function initialize(gameId: string) {
+export async function initialize(gameId: string, testMode: boolean = false) {
   const plugin = getPlugin();
   if (plugin && plugin.initialize) {
-    return plugin.initialize({ gameId });
+    return plugin.initialize({ gameId, testMode });
   }
   console.info("UnityAds (native) unavailable — initialize fallback. gameId=", gameId);
   return Promise.resolve();
