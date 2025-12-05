@@ -32,15 +32,16 @@ const App = () => {
     const initTimer = setTimeout(async () => {
       if (Capacitor.isNativePlatform()) {
         try {
-          console.log('⏰ 20s passed: Initializing Unity Ads...');
+          console.log('⏰ 1s passed: Initializing Unity Ads...');
           await UnityNative.initialize(UNITY_GAME_ID_ANDROID, true);
           console.log('✅ Unity Ads initialized successfully');
           setIsAdInitialized(true);
+          setShowInterstitialTrigger(true); // Trigger interstitial after init
         } catch (error) {
           console.error('❌ Error initializing Unity Ads:', error);
         }
       }
-    }, 20000); // 20 seconds delay
+    }, 1000); // Reduced delay to 1 second
 
     return () => clearTimeout(initTimer);
   }, []);
@@ -52,6 +53,8 @@ const App = () => {
         {/* Global banner shown on all pages after its internal delay (10s) */}
         {/* Global banner shown after initialization */}
         <UnityBanner isInitialized={isAdInitialized} />
+        {/* Interstitial Ad Component */}
+        <UnityInterstitial trigger={showInterstitialTrigger} />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />

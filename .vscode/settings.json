@@ -3,5 +3,6 @@
     "geminicodeassist.agentYoloMode": true,
     "geminicodeassist.codeGenerationPaneViewEnabled": true,
     "gemini-cli.debug.logging.enabled": true,
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "avdmanager.executable": "c:\\Users\\Abdullah pc\\latest\\cmdline-tools\\bin\\avdmanager.bat"
 }

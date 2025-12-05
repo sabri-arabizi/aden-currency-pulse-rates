@@ -9,12 +9,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <!-- Add AdMob App ID to prevent manifest merge errors if AdMob is transitively included -->
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3940256099942544~3347511713"
-            tools:replace="android:value"/>
-
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
@@ -50,5 +44,4 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <!-- <uses-permission android:name="com.google.android.gms.permission.AD_ID" /> -->
 </manifest>
