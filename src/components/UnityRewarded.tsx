@@ -28,16 +28,24 @@ const UnityRewarded: React.FC<UnityRewardedProps> = ({
       setIsReady(true);
     }, delaySeconds * 1000);
 
-    const unityAdsListener = UnityNative.addListener('unityAdsShowComplete', (data) => {
-      if (data.placement === UNITY_PLACEMENT_REWARDED_ANDROID && (data.state === 'COMPLETED' || data.rewarded === true)) {
-        onRewardEarned?.();
-      }
-      setIsLoading(false);
-    });
+    let listenerHandle: any;
+
+    const setupListener = async () => {
+      listenerHandle = await UnityNative.addListener('unityAdsShowComplete', (data) => {
+        if (data.placement === UNITY_PLACEMENT_REWARDED_ANDROID && (data.state === 'COMPLETED' || data.rewarded === true)) {
+          onRewardEarned?.();
+        }
+        setIsLoading(false);
+      });
+    };
+
+    setupListener();
 
     return () => {
       clearTimeout(timer);
-      unityAdsListener.remove();
+      if (listenerHandle) {
+        listenerHandle.remove();
+      }
     };
   }, [delaySeconds, onRewardEarned]);
 
@@ -64,7 +72,7 @@ const UnityRewarded: React.FC<UnityRewardedProps> = ({
         return;
       }
       // Call native plugin to show rewarded (native stub)
-      await UnityNative.showRewarded(UNITY_PLACEMENT_REWARDED_ANDROID);
+      await UnityNative.showRewarded({ placement: UNITY_PLACEMENT_REWARDED_ANDROID });
       console.log(`Unity Rewarded Ad: Requested native show placement=${UNITY_PLACEMENT_REWARDED_ANDROID}`);
     } catch (error) {
       console.error('Unity Rewarded Ad Error:', error);
