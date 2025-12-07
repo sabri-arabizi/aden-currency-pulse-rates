@@ -1,12 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    ndkVersion '17'
+    buildToolsVersion '34.0.0'
     namespace "com.adenrates.currencyapp"
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdk 35
     defaultConfig {
         applicationId "com.adenrates.currencyapp"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdk 21
+        targetSdk 35
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
