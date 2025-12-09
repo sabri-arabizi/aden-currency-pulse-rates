@@ -4,4 +4,6 @@ project(':capacitor-cordova-android-plugins').projectDir = new File('./capacitor
 include ':capacitor-unity-ads'
 project(':capacitor-unity-ads').projectDir = new File('../node_modules/capacitor-unity-ads/android')
 
+include ':unity-ads'
+
 apply from: 'capacitor.settings.gradle'

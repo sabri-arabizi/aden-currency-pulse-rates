@@ -1,0 +1,32 @@
+apply plugin: 'com.android.library'
+
+ext {
+  GROUP_ID = "com.unity3d.ads"
+  ARTIFACT_ID = "unity-ads"
+  VERSION_ID = "4.9.1"
+  VERSION_CODE = 4910
+  SIGN_AAR = project.findProperty("SIGN_AAR") ?: false
+}
+
+android {
+    namespace "com.adenrates.unityads"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    api "com.unity3d.ads:unity-ads:${VERSION_ID}"
+    implementation "androidx.appcompat:appcompat:${rootProject.ext.androidxAppCompatVersion}"
+}

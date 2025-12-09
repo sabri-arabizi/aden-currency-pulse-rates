@@ -10,6 +10,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Register the UniyAds plugin so JS can call native methods
+        // Force Recompile 1
         registerPlugin(UnityAdsPlugin.class);
     }
 }
