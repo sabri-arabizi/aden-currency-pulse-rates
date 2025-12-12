@@ -33,7 +33,7 @@ const App = () => {
       if (Capacitor.isNativePlatform()) {
         try {
           console.log('⏰ 1s passed: Initializing Unity Ads...');
-          await UnityNative.initialize(UNITY_GAME_ID_ANDROID, true);
+          await UnityNative.initialize({ gameId: UNITY_GAME_ID_ANDROID, testMode: true });
           console.log('✅ Unity Ads initialized successfully');
           setIsAdInitialized(true);
           setShowInterstitialTrigger(true); // Trigger interstitial after init

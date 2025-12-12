@@ -27,7 +27,7 @@ allprojects {
         mavenCentral()
         // Unity Ads Maven repository
         maven {
-            url 'https://unity3d.jfrog.io/artifactory/unity-maven'
+            url 'https://artifacts.unity3d.com/android'
         }
     }
 }

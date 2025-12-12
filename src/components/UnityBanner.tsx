@@ -23,7 +23,7 @@ const UnityBanner: React.FC<UnityBannerProps> = ({
       if (Capacitor.isNativePlatform()) {
         try {
           console.log('📱 Requesting Unity Banner (TOP_CENTER)...');
-          await UnityNative.showBanner(UNITY_PLACEMENT_BANNER_ANDROID, 'TOP_CENTER');
+          await UnityNative.showBanner({ placement: UNITY_PLACEMENT_BANNER_ANDROID, position: 'TOP_CENTER' });
         } catch (error) {
           console.error('❌ Unity Banner Error:', error);
         }
@@ -41,16 +41,28 @@ const UnityBanner: React.FC<UnityBannerProps> = ({
       loadBanner();
     }, 60000);
 
-    const unityAdsListener = UnityNative.addListener('unityAdsBannerLoaded', (data) => {
-      if (data.placement === UNITY_PLACEMENT_BANNER_ANDROID) {
-        console.log('✅ Unity Banner Ad loaded.');
-        setAdLoaded(true);
+    const setupListeners = async () => {
+      try {
+        const handle = await UnityNative.addListener('unityAdsBannerLoaded', (data) => {
+          if (data.placement === UNITY_PLACEMENT_BANNER_ANDROID) {
+            console.log('✅ Unity Banner Ad loaded.');
+            setAdLoaded(true);
+          }
+        });
+        return handle;
+      } catch (e) {
+        console.error('Error adding listener', e);
       }
-    });
+    };
+
+    let listenerHandle: any;
+    setupListeners().then(h => { listenerHandle = h; });
 
     return () => {
       clearInterval(refreshInterval);
-      unityAdsListener.remove();
+      if (listenerHandle) {
+        listenerHandle.remove();
+      }
       if (Capacitor.isNativePlatform()) {
         // Optional: Hide banner on unmount if you want to clear it
         // UnityNative.hideBanner(); 

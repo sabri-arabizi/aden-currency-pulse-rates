@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -31,7 +32,7 @@ public class UnityAdsPlugin extends Plugin {
     @PluginMethod
     public void initialize(PluginCall call) {
         String gameId = call.getString("gameId");
-        boolean testMode = call.getBoolean("testMode", false);
+        boolean testMode = call.getBoolean("testMode", true); // Default to true for debugging if missing
         
         if (UnityAds.isInitialized()) {
             JSObject ret = new JSObject();
@@ -47,6 +48,10 @@ public class UnityAdsPlugin extends Plugin {
                     JSObject ret = new JSObject();
                     ret.put("initialized", true);
                     notifyListeners("unityAdsInitialized", ret);
+                    
+                    // User Feedback
+                    Toast.makeText(getContext(), "Unity Ads Initialized (Test Mode: " + testMode + ")", Toast.LENGTH_SHORT).show();
+                    
                     try {
                         call.resolve(ret);
                     } catch (Exception e) {
@@ -60,6 +65,11 @@ public class UnityAdsPlugin extends Plugin {
                     ret.put("initialized", false);
                     ret.put("message", message);
                     notifyListeners("unityAdsInitializationFailed", ret);
+                    
+                    // User Feedback
+                    Toast.makeText(getContext(), "Unity Ads Init Failed: " + message, Toast.LENGTH_LONG).show();
+                    Log.e(TAG, "Unity Ads Init Failed: " + message);
+
                     try {
                         call.reject(message);
                     } catch (Exception e) {
@@ -94,6 +104,7 @@ public class UnityAdsPlugin extends Plugin {
                             ret.put("placement", placementId);
                             ret.put("error", message);
                             notifyListeners("unityAdsShowFailed", ret);
+                            Toast.makeText(getContext(), "Ad Show Failed: " + message, Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
@@ -120,6 +131,7 @@ public class UnityAdsPlugin extends Plugin {
                             
                             if (isRewarded && state.equals(UnityAds.UnityAdsShowCompletionState.COMPLETED)) {
                                 notifyListeners("unityAdsReward", ret);
+                                Toast.makeText(getContext(), "Reward Earned!", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
@@ -128,6 +140,8 @@ public class UnityAdsPlugin extends Plugin {
 
                 @Override
                 public void onUnityAdsFailedToLoad(String placementId, UnityAds.UnityAdsLoadError error, String message) {
+                    Toast.makeText(getContext(), "Ad Load Failed: " + message, Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Ad Load Failed: " + message);
                     call.reject(message);
                 }
             });
@@ -158,6 +172,7 @@ public class UnityAdsPlugin extends Plugin {
                     JSObject ret = new JSObject();
                     ret.put("placement", placementId);
                     notifyListeners("unityAdsBannerLoaded", ret);
+                    // Toast.makeText(getContext(), "Banner Loaded", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -173,6 +188,7 @@ public class UnityAdsPlugin extends Plugin {
                     ret.put("placement", placementId);
                     ret.put("error", errorInfo.errorMessage);
                     notifyListeners("unityAdsBannerFailed", ret);
+                    Toast.makeText(getContext(), "Banner Error: " + errorInfo.errorMessage, Toast.LENGTH_SHORT).show();
                 }
 
                 @Override

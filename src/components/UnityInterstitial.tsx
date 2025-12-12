@@ -22,15 +22,22 @@ const UnityInterstitial: React.FC<UnityInterstitialProps> = ({
       setCanShow(true);
     }, delaySeconds * 1000);
 
-    const unityAdsListener = UnityNative.addListener('unityAdsShowComplete', (data) => {
-      if (data.placement === UNITY_PLACEMENT_INTERSTITIAL_ANDROID) {
-        console.log('Unity Interstitial Ad finished.');
-      }
-    });
+    let listenerHandle: any;
+
+    const setupListener = async () => {
+      listenerHandle = await UnityNative.addListener('unityAdsShowComplete', (data) => {
+        if (data.placement === UNITY_PLACEMENT_INTERSTITIAL_ANDROID) {
+          console.log('Unity Interstitial Ad finished.');
+        }
+      });
+    };
+    setupListener();
 
     return () => {
       clearTimeout(timer);
-      unityAdsListener.remove();
+      if (listenerHandle) {
+        listenerHandle.remove();
+      }
     };
   }, [delaySeconds]);
 
@@ -49,7 +56,7 @@ const UnityInterstitial: React.FC<UnityInterstitialProps> = ({
       }
 
       // Call native Capacitor plugin (stub) — will log on native side
-      await UnityNative.showInterstitial(UNITY_PLACEMENT_INTERSTITIAL_ANDROID);
+      await UnityNative.showInterstitial({ placement: UNITY_PLACEMENT_INTERSTITIAL_ANDROID });
       console.log(`Unity Interstitial Ad: Requested native show placement=${UNITY_PLACEMENT_INTERSTITIAL_ANDROID}`);
     } catch (error) {
       console.error('Unity Interstitial Ad Error:', error);
