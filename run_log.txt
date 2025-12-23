@@ -1,0 +1,7 @@
+√ Copying web assets from dist to android\app\src\main\assets\public in 355.99ms
+√ Creating capacitor.config.json in android\app\src\main\assets in 55.88ms
+[info] Inlining sourcemaps
+√ copy android in 1.04s
+√ Updating Android plugins in 138.19ms
+√ update android in 844.71ms
+Terminate batch job (Y/N)? 

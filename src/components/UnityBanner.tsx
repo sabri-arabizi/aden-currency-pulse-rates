@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, PluginListenerHandle } from '@capacitor/core';
 import UnityNative from '@/lib/capacitorUnityAds';
 import { UNITY_PLACEMENT_BANNER_ANDROID } from '@/lib/unityAds';
 
@@ -35,11 +35,13 @@ const UnityBanner: React.FC<UnityBannerProps> = ({
     // Initial load
     loadBanner();
 
-    // Refresh every 60 seconds
-    refreshInterval = setInterval(() => {
-      console.log('♻️ Refreshing Unity Banner...');
-      loadBanner();
-    }, 60000);
+    // The Unity Ads SDK handles banner refreshing automatically.
+    // Manual refreshing can interfere with the SDK's internal logic.
+    // We will remove the manual refresh interval.
+    // refreshInterval = setInterval(() => {
+    //   console.log('♻️ Refreshing Unity Banner...');
+    //   loadBanner();
+    // }, 60000);
 
     const setupListeners = async () => {
       try {
@@ -55,11 +57,11 @@ const UnityBanner: React.FC<UnityBannerProps> = ({
       }
     };
 
-    let listenerHandle: any;
+    let listenerHandle: PluginListenerHandle | undefined;
     setupListeners().then(h => { listenerHandle = h; });
 
     return () => {
-      clearInterval(refreshInterval);
+      // clearInterval(refreshInterval); // No longer needed
       if (listenerHandle) {
         listenerHandle.remove();
       }
