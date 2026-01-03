@@ -1,5 +1,4 @@
-
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -7,11 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
-import UnityBanner from '@/components/UnityBanner';
-import UnityInterstitial from '@/components/UnityInterstitial';
-import { Capacitor } from '@capacitor/core';
-import UnityNative from '@/lib/capacitorUnityAds';
-import { UNITY_GAME_ID_ANDROID } from '@/lib/unityAds';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -23,38 +17,14 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const [showInterstitialTrigger, setShowInterstitialTrigger] = useState(false);
-
-  const [isAdInitialized, setIsAdInitialized] = useState(false);
-
   useEffect(() => {
-    console.log('🚀 App Mounted: Unity Ads Logic Loaded (v2)');
-    const initTimer = setTimeout(async () => {
-      if (Capacitor.isNativePlatform()) {
-        try {
-          console.log('⏰ 1s passed: Initializing Unity Ads...');
-          await UnityNative.initialize({ gameId: UNITY_GAME_ID_ANDROID, testMode: true });
-          console.log('✅ Unity Ads initialized successfully');
-          setIsAdInitialized(true);
-          setShowInterstitialTrigger(true); // Trigger interstitial after init
-        } catch (error) {
-          console.error('❌ Error initializing Unity Ads:', error);
-        }
-      }
-    }, 1000); // Reduced delay to 1 second
-
-    return () => clearTimeout(initTimer);
+    // console.log('🚀 App Mounted');
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        {/* Global banner shown on all pages after its internal delay (10s) */}
-        {/* Global banner shown after initialization */}
-        <UnityBanner isInitialized={isAdInitialized} />
-        {/* Interstitial Ad Component */}
-        <UnityInterstitial trigger={showInterstitialTrigger} />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />

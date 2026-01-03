@@ -35,8 +35,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.androidxJunitVersion}"
     androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.androidxEspressoCoreVersion}"
 
-    // Unity Ads
-    implementation project(':unity-ads')
+
 }
 
 apply from: 'capacitor.build.gradle'

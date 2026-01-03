@@ -90,7 +90,7 @@ const Index = () => {
 
       <CurrencyTabs selectedCity={selectedCity} language={language} />
 
-      {/* Test buttons for Unity Ads (Interstitial / Banner) */}
+
 
     </div>
 
