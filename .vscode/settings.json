@@ -4,5 +4,6 @@
     "geminicodeassist.codeGenerationPaneViewEnabled": true,
     "gemini-cli.debug.logging.enabled": true,
     "java.configuration.updateBuildConfiguration": "interactive",
+    "avdmanager.sdkPath": "C:\\Users\\Abdullah pc\\AppData\\Local\\Android\\Sdk",
     "avdmanager.executable": "c:\\Users\\Abdullah pc\\latest\\cmdline-tools\\bin\\avdmanager.bat"
 }
