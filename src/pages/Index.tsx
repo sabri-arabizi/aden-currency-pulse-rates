@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useRefreshCounter } from '@/hooks/useRefreshCounter';
 import { t } from '@/utils/translations';
+import UnityAds from '@/integrations/UnityAds';
 const Index = () => {
   const [selectedCity, setSelectedCity] = useState('عدن');
   const { refreshCount } = useRefreshCounter();
@@ -51,8 +52,6 @@ const Index = () => {
 
         <div className="flex gap-2 md:gap-3 items-center flex-wrap justify-center">
           <LanguageToggle language={language} onLanguageChange={changeLanguage} />
-          <SarUpdateButton />
-          <DynamicGoldUpdateButton />
         </div>
       </div>
     </div>
@@ -65,7 +64,7 @@ const Index = () => {
         </h2>
 
         <div className="flex justify-center gap-4 md:gap-8 mb-6 md:mb-10 px-4 mx-auto py-4 rounded-full backdrop-blur-sm bg-[#ffd100]/85">
-          <button onClick={() => setSelectedCity('صنعاء')} className={`relative transition-all duration-500 group ${selectedCity === 'صنعاء' ? 'transform scale-110' : 'hover:transform hover:scale-105'}`}>
+          <button onClick={() => { setSelectedCity('صنعاء'); UnityAds.showBanner(); }} className={`relative transition-all duration-500 group ${selectedCity === 'صنعاء' ? 'transform scale-110' : 'hover:transform hover:scale-105'}`}>
             <div className="w-28 h-28 md:w-36 md:h-36 rounded-3xl overflow-hidden border-4 border-gradient-to-r from-purple-400 to-pink-400 shadow-2xl group-hover:shadow-purple-500/50 transition-all duration-300">
               <img alt={getCityName('صنعاء')} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" src="/lovable-uploads/51456852-7651-4526-9445-d268f033ea3c.jpg" />
             </div>
@@ -75,7 +74,7 @@ const Index = () => {
             {selectedCity === 'صنعاء' && <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-10 h-1.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full shadow-lg"></div>}
           </button>
 
-          <button onClick={() => setSelectedCity('عدن')} className={`relative transition-all duration-500 group ${selectedCity === 'عدن' ? 'transform scale-110' : 'hover:transform hover:scale-105'}`}>
+          <button onClick={() => { setSelectedCity('عدن'); UnityAds.showBanner(); }} className={`relative transition-all duration-500 group ${selectedCity === 'عدن' ? 'transform scale-110' : 'hover:transform hover:scale-105'}`}>
             <div className="w-28 h-28 md:w-36 md:h-36 rounded-3xl overflow-hidden border-4 border-gradient-to-r from-blue-400 to-cyan-400 shadow-2xl group-hover:shadow-blue-500/50 transition-all duration-300">
               <img alt={getCityName('عدن')} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" src="/lovable-uploads/401073c5-56aa-4edd-b071-9494a6cc2ce0.jpg" />
             </div>

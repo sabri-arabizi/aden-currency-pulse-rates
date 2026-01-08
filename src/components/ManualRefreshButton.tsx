@@ -4,20 +4,24 @@ import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import UnityAds from '@/integrations/UnityAds';
 
 const ManualRefreshButton = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
 
   const handleRefresh = async () => {
+    // Show Rewarded Ad
+    UnityAds.showRewarded().catch(e => console.error("Ad Show Error", e));
+
     setIsRefreshing(true);
-    
+
     try {
       console.log('🔄 بدء التحديث اليدوي لجميع الأسعار...');
 
       // Step 1: Update all exchange rates first
       console.log('📊 الخطوة 1: تحديث أسعار الصرف...');
-      
+
       const sarResponse = await supabase.functions.invoke('update-sar-prices', {
         body: { manual: true }
       });
@@ -38,7 +42,7 @@ const ManualRefreshButton = () => {
 
       // Step 2: Update gold prices
       console.log('💰 الخطوة 2: تحديث أسعار الذهب...');
-      
+
       // Update Aden gold prices (dynamic based on exchange rates)
       const dynamicGoldResponse = await supabase.functions.invoke('update-gold-dynamic-aden', {
         body: { manual: true }
@@ -51,9 +55,9 @@ const ManualRefreshButton = () => {
 
       console.log('✅ اكتمل التحديث اليدوي بنجاح');
 
-      console.log('نتائج التحديث اليدوي:', { 
-        sarResponse, 
-        aedResponse, 
+      console.log('نتائج التحديث اليدوي:', {
+        sarResponse,
+        aedResponse,
         egpResponse,
         sanaaRatesResponse,
         dynamicGoldResponse,
@@ -88,9 +92,9 @@ const ManualRefreshButton = () => {
       disabled={isRefreshing}
       className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
     >
-      <RefreshCw 
-        size={20} 
-        className={`ml-2 ${isRefreshing ? 'animate-spin' : ''}`} 
+      <RefreshCw
+        size={20}
+        className={`ml-2 ${isRefreshing ? 'animate-spin' : ''}`}
       />
       {isRefreshing ? 'جاري التحديث اليدوي...' : 'تحديث يدوي (الجدولة متوقفة)'}
     </Button>
