@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 
 android {
     ndkVersion '17'
-
+    buildToolsVersion '34.0.0'
     namespace "com.adenrates.currencyapp"
-    compileSdk 35
+    compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
         applicationId "com.adenrates.currencyapp"
-        minSdk 24
-        targetSdk 35
+        minSdk rootProject.ext.minSdkVersion
+        targetSdk rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -18,6 +18,10 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
@@ -31,8 +35,9 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:${rootProject.ext.androidxJunitVersion}"
     androidTestImplementation "androidx.test.espresso:espresso-core:${rootProject.ext.androidxEspressoCoreVersion}"
 
-    // Unity Ads
-    implementation 'com.unity3d.ads:unity-ads:4.16.4'
+
+
+    implementation "com.unity3d.ads:unity-ads:4.12.0"
 }
 
 apply from: 'capacitor.build.gradle'

@@ -34,10 +34,7 @@ const config: CapacitorConfig = {
       style: 'dark',
       resizeOnFullScreen: true
     },
-    UnityAds: {
-      gameId: '5967793',
-      testMode: false
-    }
+
   },
   android: {
     allowMixedContent: true,

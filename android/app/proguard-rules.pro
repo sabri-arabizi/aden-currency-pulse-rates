@@ -20,6 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-# Unity Ads
--keep class com.unity3d.ads.** { *; }
--keep class com.unity3d.services.** { *; }
+

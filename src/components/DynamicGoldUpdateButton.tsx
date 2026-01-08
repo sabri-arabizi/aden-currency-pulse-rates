@@ -3,8 +3,6 @@ import { Button } from '@/components/ui/button';
 import { TrendingUp, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import UnityNative from '@/lib/capacitorUnityAds';
-import { UNITY_PLACEMENT_REWARDED_ANDROID } from '@/lib/unityAds';
 
 export const DynamicGoldUpdateButton = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -28,19 +26,6 @@ export const DynamicGoldUpdateButton = () => {
           description: `تم تحديث ${data.updates?.length || 0} عيار بناءً على أسعار الصرف`,
           duration: 6000
         });
-
-        // Show Rewarded Ad after successful update
-        console.log('🎬 Requesting Rewarded Ad...');
-        try {
-          await UnityNative.showRewarded(UNITY_PLACEMENT_REWARDED_ANDROID);
-        } catch (adError) {
-          console.error('❌ Failed to show rewarded ad:', adError);
-        }
-
-        // Reload the page to fetch fresh data (optional, maybe delay it?)
-        // window.location.reload(); 
-        // Let's rely on the user or a query invalidation instead of hard reload to allow ad to show.
-        // But if we must reload, we should wait. For now, I'll comment out hard reload to let ad show.
 
       } else {
         throw new Error(data?.error || 'فشل في التحديث الديناميكي');

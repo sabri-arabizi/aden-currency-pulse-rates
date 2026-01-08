@@ -3,7 +3,9 @@
     "geminicodeassist.agentYoloMode": true,
     "geminicodeassist.codeGenerationPaneViewEnabled": true,
     "gemini-cli.debug.logging.enabled": true,
-    "java.configuration.updateBuildConfiguration": "interactive",
+    "java.configuration.updateBuildConfiguration": "disabled",
     "avdmanager.sdkPath": "C:\\Users\\Abdullah pc\\AppData\\Local\\Android\\Sdk",
-    "avdmanager.executable": "c:\\Users\\Abdullah pc\\latest\\cmdline-tools\\bin\\avdmanager.bat"
+    "avdmanager.executable": "c:\\Users\\Abdullah pc\\latest\\cmdline-tools\\bin\\avdmanager.bat",
+    "java.format.settings.url": "eclipse-formatter.xml",
+    "cloudcode.project": "test-fd47f83c"
 }
