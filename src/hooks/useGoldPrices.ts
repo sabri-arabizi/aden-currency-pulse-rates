@@ -29,8 +29,14 @@ export const useGoldPrices = (selectedCity: string) => {
         throw error;
       }
 
-      console.log('تم جلب أسعار الذهب بنجاح:', data);
-      return (data || []) as GoldPrice[];
+      // Filter to show only 18, 21, 22 karats and gold pound
+      const filteredData = (data || []).filter((gold: GoldPrice) => {
+        const validTypes = ['عيار 18', 'عيار 21', 'عيار 22', 'جنيه ذهب'];
+        return validTypes.includes(gold.type);
+      });
+
+      console.log('تم جلب أسعار الذهب بنجاح:', filteredData);
+      return filteredData as GoldPrice[];
     },
     refetchInterval: 2 * 60 * 1000, // تحديث كل دقيقتين
     staleTime: 1 * 60 * 1000, // البيانات تعتبر قديمة بعد دقيقة واحدة

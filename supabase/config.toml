@@ -2,3 +2,30 @@ project_id = "lgkexjmtzmcwfbkockwj"
 
 [functions.update-gold-sanaa-zoza]
 verify_jwt = false
+
+[functions.update-gold-aden-boqash]
+verify_jwt = false
+
+[functions.update-gold-dynamic-aden]
+verify_jwt = false
+
+[functions.update-sar-prices]
+verify_jwt = false
+
+[functions.update-aed-prices]
+verify_jwt = false
+
+[functions.update-egp-prices]
+verify_jwt = false
+
+[functions.update-egp-from-2dec]
+verify_jwt = false
+
+[functions.update-sanaa-rates-from-khbr]
+verify_jwt = false
+
+[functions.scheduled-sar-update]
+verify_jwt = false
+
+[functions.app-backend]
+verify_jwt = false
