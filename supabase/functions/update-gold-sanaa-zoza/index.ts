@@ -171,8 +171,9 @@ serve(async (req) => {
       }
     );
 
-  } catch (error) {
-    console.error('❌ خطأ في تحديث أسعار الذهب في صنعاء:', error);
+  } catch (err) {
+    const error = err as Error;
+    console.error('❌ خطأ في تحديث أسعار الذهب في صنعاء:', error.message);
     return new Response(
       JSON.stringify({ 
         success: false, 

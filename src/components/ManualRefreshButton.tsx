@@ -43,8 +43,8 @@ const ManualRefreshButton = () => {
       // Step 2: Update gold prices
       console.log('💰 الخطوة 2: تحديث أسعار الذهب...');
 
-      // Update Aden gold prices (dynamic based on exchange rates)
-      const dynamicGoldResponse = await supabase.functions.invoke('update-gold-dynamic-aden', {
+      // Update Aden gold prices from boqash.com (real prices)
+      const adenGoldResponse = await supabase.functions.invoke('update-gold-aden-boqash', {
         body: { manual: true }
       });
 
@@ -60,7 +60,7 @@ const ManualRefreshButton = () => {
         aedResponse,
         egpResponse,
         sanaaRatesResponse,
-        dynamicGoldResponse,
+        adenGoldResponse,
         sanaaGoldResponse
       });
 
