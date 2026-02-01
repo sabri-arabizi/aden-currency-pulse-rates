@@ -1,10 +1,17 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, CheckCircle, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { setLastUpdateTimestamp } from '@/hooks/useGoldPrices';
 import UnityAds from '@/integrations/UnityAds';
+
+interface UpdateResult {
+  name: string;
+  success: boolean;
+  error?: string;
+}
 
 const ManualRefreshButton = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -16,68 +23,103 @@ const ManualRefreshButton = () => {
 
     setIsRefreshing(true);
 
+    const results: UpdateResult[] = [];
+
     try {
       console.log('🔄 بدء التحديث اليدوي لجميع الأسعار...');
+      console.log('⏰ وقت بدء التحديث:', new Date().toISOString());
 
-      // Step 1: Update all exchange rates first
+      // الخطوة 1: تحديث أسعار الصرف
       console.log('📊 الخطوة 1: تحديث أسعار الصرف...');
 
-      const sarResponse = await supabase.functions.invoke('update-sar-prices', {
-        body: { manual: true }
+      const exchangePromises = [
+        supabase.functions.invoke('update-sar-prices', { body: { manual: true } })
+          .then(r => ({ name: 'SAR', success: !r.error, error: r.error?.message }))
+          .catch(e => ({ name: 'SAR', success: false, error: e.message })),
+        
+        supabase.functions.invoke('update-aed-prices', { body: { manual: true } })
+          .then(r => ({ name: 'AED', success: !r.error, error: r.error?.message }))
+          .catch(e => ({ name: 'AED', success: false, error: e.message })),
+        
+        supabase.functions.invoke('update-egp-from-2dec', { body: { manual: true } })
+          .then(r => ({ name: 'EGP', success: !r.error, error: r.error?.message }))
+          .catch(e => ({ name: 'EGP', success: false, error: e.message })),
+        
+        supabase.functions.invoke('update-sanaa-rates-from-khbr', { body: { manual: true } })
+          .then(r => ({ name: 'صنعاء', success: !r.error, error: r.error?.message }))
+          .catch(e => ({ name: 'صنعاء', success: false, error: e.message })),
+      ];
+
+      const exchangeResults = await Promise.all(exchangePromises);
+      results.push(...exchangeResults);
+      console.log('✅ نتائج تحديث أسعار الصرف:', exchangeResults);
+
+      // الخطوة 2: تحديث أسعار الذهب - الأهم!
+      console.log('💰 الخطوة 2: تحديث أسعار الذهب (أحدث الأسعار فقط)...');
+
+      // تحديث ذهب عدن من boqash.com
+      const adenGoldResult = await supabase.functions.invoke('update-gold-aden-boqash', { 
+        body: { manual: true, timestamp: Date.now() } 
       });
+      
+      if (!adenGoldResult.error && adenGoldResult.data?.success) {
+        // تسجيل وقت التحديث الناجح لعدن
+        setLastUpdateTimestamp('عدن');
+        results.push({ name: 'ذهب عدن', success: true });
+        console.log('✅ تم تحديث ذهب عدن بنجاح:', adenGoldResult.data);
+      } else {
+        results.push({ name: 'ذهب عدن', success: false, error: adenGoldResult.error?.message });
+        console.error('❌ فشل تحديث ذهب عدن:', adenGoldResult.error);
+      }
 
-      const aedResponse = await supabase.functions.invoke('update-aed-prices', {
-        body: { manual: true }
+      // تحديث ذهب صنعاء من zoza.top
+      const sanaaGoldResult = await supabase.functions.invoke('update-gold-sanaa-zoza', { 
+        body: { manual: true, timestamp: Date.now() } 
       });
+      
+      if (!sanaaGoldResult.error && sanaaGoldResult.data?.success) {
+        // تسجيل وقت التحديث الناجح لصنعاء
+        setLastUpdateTimestamp('صنعاء');
+        results.push({ name: 'ذهب صنعاء', success: true });
+        console.log('✅ تم تحديث ذهب صنعاء بنجاح:', sanaaGoldResult.data);
+      } else {
+        results.push({ name: 'ذهب صنعاء', success: false, error: sanaaGoldResult.error?.message });
+        console.error('❌ فشل تحديث ذهب صنعاء:', sanaaGoldResult.error);
+      }
 
-      const egpResponse = await supabase.functions.invoke('update-egp-from-2dec', {
-        body: { manual: true }
-      });
+      console.log('⏰ وقت انتهاء التحديث:', new Date().toISOString());
 
-      const sanaaRatesResponse = await supabase.functions.invoke('update-sanaa-rates-from-khbr', {
-        body: { manual: true }
-      });
+      // ملخص النتائج
+      const successCount = results.filter(r => r.success).length;
+      const failCount = results.filter(r => !r.success).length;
 
-      console.log('✅ تم تحديث أسعار الصرف بنجاح');
+      console.log('📋 ملخص التحديث:', { successCount, failCount, results });
 
-      // Step 2: Update gold prices
-      console.log('💰 الخطوة 2: تحديث أسعار الذهب...');
+      if (failCount === 0) {
+        toast({
+          title: "✅ تم التحديث بنجاح",
+          description: `تم تحديث ${successCount} من الأسعار. سيتم تحميل البيانات الجديدة الآن.`,
+          duration: 3000,
+        });
+      } else {
+        toast({
+          title: "⚠️ تحديث جزئي",
+          description: `نجح: ${successCount} | فشل: ${failCount}`,
+          variant: "destructive",
+          duration: 5000,
+        });
+      }
 
-      // Update Aden gold prices from boqash.com (real prices)
-      const adenGoldResponse = await supabase.functions.invoke('update-gold-aden-boqash', {
-        body: { manual: true }
-      });
-
-      // Update Sanaa gold prices (from zoza.top)
-      const sanaaGoldResponse = await supabase.functions.invoke('update-gold-sanaa-zoza', {
-        body: { manual: true }
-      });
-
-      console.log('✅ اكتمل التحديث اليدوي بنجاح');
-
-      console.log('نتائج التحديث اليدوي:', {
-        sarResponse,
-        aedResponse,
-        egpResponse,
-        sanaaRatesResponse,
-        adenGoldResponse,
-        sanaaGoldResponse
-      });
-
-      toast({
-        title: "تم التحديث اليدوي بنجاح ✅",
-        description: "تم تحديث أسعار الصرف وأسعار الذهب لعدن وصنعاء بنجاح",
-        duration: 5000,
-      });
-
-      // Reload the page to fetch fresh data
-      window.location.reload();
+      // إعادة تحميل الصفحة لجلب البيانات الجديدة فقط
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
 
     } catch (error) {
-      console.error('Error in manual refresh:', error);
+      console.error('❌ خطأ في التحديث اليدوي:', error);
       toast({
-        title: "خطأ في التحديث اليدوي ❌",
-        description: "حدث خطأ أثناء تحديث بعض الأسعار",
+        title: "❌ خطأ في التحديث",
+        description: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
         variant: "destructive",
         duration: 5000,
       });
@@ -96,7 +138,7 @@ const ManualRefreshButton = () => {
         size={20}
         className={`ml-2 ${isRefreshing ? 'animate-spin' : ''}`}
       />
-      {isRefreshing ? 'جاري التحديث اليدوي...' : 'تحديث يدوي (الجدولة متوقفة)'}
+      {isRefreshing ? 'جاري التحديث...' : 'تحديث يدوي (الجدولة متوقفة)'}
     </Button>
   );
 };
