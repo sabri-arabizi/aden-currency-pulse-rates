@@ -2,14 +2,11 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { DollarSign, Coins, Calculator } from 'lucide-react';
 import { useExchangeRates } from '@/hooks/useExchangeRates';
-import { useGoldPrices } from '@/hooks/useGoldPrices';
 import { CurrencyCard } from './CurrencyCard';
-import { GoldCard } from './GoldCard';
+import { GoldPricesSection } from './GoldPricesSection';
 import SanaaCurrencyCards from './SanaaCurrencyCards';
 import CurrencyConverter from './CurrencyConverter';
 import ManualRefreshButton from './ManualRefreshButton';
-import { DynamicGoldUpdateButton } from './DynamicGoldUpdateButton';
-import { SanaaGoldUpdateButton } from './SanaaGoldUpdateButton';
 import { t } from '@/utils/translations';
 import UnityAds from '@/integrations/UnityAds';
 
@@ -28,13 +25,8 @@ const CurrencyTabs = ({
     isLoading: ratesLoading,
     error: ratesError
   } = useExchangeRates(selectedCity);
-  const {
-    data: goldPrices,
-    isLoading: goldLoading,
-    error: goldError
-  } = useGoldPrices(selectedCity);
 
-  if (ratesLoading || goldLoading) {
+  if (ratesLoading) {
     return <div className="flex justify-center items-center h-40">
       <div className="relative">
         <div className="animate-spin rounded-full h-16 w-16 border-4 border-yellow-500 border-t-transparent shadow-lg"></div>
@@ -43,7 +35,7 @@ const CurrencyTabs = ({
     </div>;
   }
 
-  if (ratesError || goldError) {
+  if (ratesError) {
     return <div className="text-center text-red-400 p-8 bg-red-50/10 rounded-2xl backdrop-blur-sm border border-red-200/20">
       <div className="text-2xl mb-2">⚠️</div>
       <div className="text-lg font-medium">{t('errorLoading', language)}</div>
@@ -128,18 +120,14 @@ const CurrencyTabs = ({
               {t('goldPrices', language)} - {getCityName(selectedCity)}
             </h2>
             <div className="flex items-center justify-center gap-2 text-white/80 text-sm mb-4">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>{language === 'ar' ? 'أسعار حية ومحدثة' : 'Live Updated Prices'}</span>
-            </div>
-            <div className="flex justify-center">
-              {/* Dynamic Update Buttons Removed */}
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+              <span>{language === 'ar' ? 'اضغط تحديث يدوي للحصول على أحدث الأسعار' : 'Press Manual Refresh for latest prices'}</span>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {goldPrices?.map(gold => <GoldCard key={`${gold.type}-${gold.city}`} gold={gold} language={language} />)}
-        </div>
+        {/* عرض أسعار الذهب مع منطق البيانات الحديثة */}
+        <GoldPricesSection city={selectedCity} language={language} />
       </div>}
 
       {activeTab === 'converter' && <div>
