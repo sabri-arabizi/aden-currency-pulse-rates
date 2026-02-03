@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, CheckCircle, XCircle } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { setLastUpdateTimestamp } from '@/hooks/useGoldPrices';
+import { useQueryClient } from '@tanstack/react-query';
 import UnityAds from '@/integrations/UnityAds';
 
 interface UpdateResult {
@@ -16,6 +16,7 @@ interface UpdateResult {
 const ManualRefreshButton = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleRefresh = async () => {
     // Show Rewarded Ad
@@ -62,9 +63,13 @@ const ManualRefreshButton = () => {
         body: { manual: true, timestamp: Date.now() } 
       });
       
+      console.log('📥 استجابة تحديث ذهب عدن:', adenGoldResult);
+      
       if (!adenGoldResult.error && adenGoldResult.data?.success) {
         // تسجيل وقت التحديث الناجح لعدن
-        setLastUpdateTimestamp('عدن');
+        const updateTime = Date.now();
+        localStorage.setItem('gold_prices_last_update_عدن', updateTime.toString());
+        console.log('💾 تم حفظ وقت التحديث لعدن:', updateTime, new Date(updateTime).toISOString());
         results.push({ name: 'ذهب عدن', success: true });
         console.log('✅ تم تحديث ذهب عدن بنجاح:', adenGoldResult.data);
       } else {
@@ -77,9 +82,13 @@ const ManualRefreshButton = () => {
         body: { manual: true, timestamp: Date.now() } 
       });
       
+      console.log('📥 استجابة تحديث ذهب صنعاء:', sanaaGoldResult);
+      
       if (!sanaaGoldResult.error && sanaaGoldResult.data?.success) {
         // تسجيل وقت التحديث الناجح لصنعاء
-        setLastUpdateTimestamp('صنعاء');
+        const updateTime = Date.now();
+        localStorage.setItem('gold_prices_last_update_صنعاء', updateTime.toString());
+        console.log('💾 تم حفظ وقت التحديث لصنعاء:', updateTime, new Date(updateTime).toISOString());
         results.push({ name: 'ذهب صنعاء', success: true });
         console.log('✅ تم تحديث ذهب صنعاء بنجاح:', sanaaGoldResult.data);
       } else {
@@ -95,10 +104,25 @@ const ManualRefreshButton = () => {
 
       console.log('📋 ملخص التحديث:', { successCount, failCount, results });
 
+      // ⚡ الخطوة الحاسمة: إبطال الكاش وإعادة جلب البيانات فوراً
+      console.log('🔄 إعادة جلب البيانات من قاعدة البيانات...');
+      
+      // إبطال جميع استعلامات الذهب
+      await queryClient.invalidateQueries({ queryKey: ['gold-prices'] });
+      // إبطال جميع استعلامات أسعار الصرف
+      await queryClient.invalidateQueries({ queryKey: ['exchange-rates'] });
+      
+      // إعادة جلب فورية للتأكد
+      await queryClient.refetchQueries({ queryKey: ['gold-prices', 'عدن'], type: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['gold-prices', 'صنعاء'], type: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['exchange-rates'], type: 'active' });
+      
+      console.log('✅ تم إعادة جلب البيانات بنجاح');
+
       if (failCount === 0) {
         toast({
           title: "✅ تم التحديث بنجاح",
-          description: `تم تحديث ${successCount} من الأسعار. سيتم تحميل البيانات الجديدة الآن.`,
+          description: `تم تحديث ${successCount} من الأسعار بأحدث البيانات.`,
           duration: 3000,
         });
       } else {
@@ -109,11 +133,6 @@ const ManualRefreshButton = () => {
           duration: 5000,
         });
       }
-
-      // إعادة تحميل الصفحة لجلب البيانات الجديدة فقط
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
 
     } catch (error) {
       console.error('❌ خطأ في التحديث اليدوي:', error);

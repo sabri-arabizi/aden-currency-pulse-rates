@@ -50,12 +50,11 @@ export const clearOldGoldData = (city: string): void => {
 };
 
 export const useGoldPrices = (selectedCity: string) => {
-  const queryClient = useQueryClient();
-  
   return useQuery({
     queryKey: ['gold-prices', selectedCity],
     queryFn: async () => {
       console.log('🔍 جاري جلب أسعار الذهب للمدينة:', selectedCity);
+      console.log('⏰ وقت الجلب:', new Date().toISOString());
       
       const { data, error } = await supabase
         .from('gold_prices')
@@ -68,50 +67,66 @@ export const useGoldPrices = (selectedCity: string) => {
         throw error;
       }
 
+      console.log('📊 البيانات الخام من قاعدة البيانات:', data?.length, 'سجل');
+      
       // تصفية الأنواع المطلوبة فقط
       const validTypes = ['عيار 18', 'عيار 21', 'عيار 22', 'جنيه ذهب'];
       const filteredData = (data || []).filter((gold: GoldPrice) => 
         validTypes.includes(gold.type)
       );
 
-      // التحقق من حداثة البيانات
+      console.log('📋 البيانات بعد التصفية:', filteredData.length, 'سجل');
+
+      // الحصول على آخر تحديث مسجل
       const lastUpdateTimestamp = getLastUpdateTimestamp(selectedCity);
-      
-      // إذا لم يكن هناك تحديث سابق مسجل، نتحقق من حداثة البيانات بناءً على الوقت
+      console.log('📅 آخر تحديث مسجل:', lastUpdateTimestamp, lastUpdateTimestamp > 0 ? new Date(lastUpdateTimestamp).toISOString() : 'لا يوجد');
+
+      // إذا لم يكن هناك تحديث سابق مسجل
       if (lastUpdateTimestamp === 0) {
-        // البيانات الأولية - نتحقق من أنها حديثة (خلال آخر 30 دقيقة)
+        // نتحقق من حداثة البيانات
         const freshData = filteredData.filter((gold: GoldPrice) => isDataFresh(gold.updated_at));
         
         if (freshData.length === 0 && filteredData.length > 0) {
           console.log('⚠️ البيانات قديمة - تحتاج إلى تحديث يدوي');
-          // نعيد البيانات مع علامة أنها قديمة
           return filteredData.map((gold: GoldPrice) => ({
             ...gold,
             _isStale: true
           })) as GoldPrice[];
         }
         
-        console.log('✅ البيانات حديثة:', freshData.length, 'سجل');
+        console.log('✅ البيانات حديثة (بدون تحديث سابق):', freshData.length, 'سجل');
         return freshData as GoldPrice[];
       }
 
-      // تصفية البيانات لإظهار فقط ما تم تحديثه بعد آخر تحديث ناجح
-      const freshData = filteredData.filter((gold: GoldPrice) => 
-        isUpdatedAfter(gold.updated_at, lastUpdateTimestamp - (5 * 60 * 1000)) // نطرح 5 دقائق للسماح بفارق التوقيت
-      );
+      // إرجاع جميع البيانات المصفاة - React Query سيتكفل بتحديثها
+      // لأننا نستخدم invalidateQueries بعد كل تحديث ناجح
+      const freshData = filteredData.filter((gold: GoldPrice) => {
+        const updateTime = new Date(gold.updated_at).getTime();
+        const threshold = lastUpdateTimestamp - (10 * 60 * 1000); // 10 دقائق tolerance
+        const isFresh = updateTime >= threshold;
+        console.log(`  - ${gold.type}: updated_at=${gold.updated_at}, isFresh=${isFresh}`);
+        return isFresh;
+      });
 
       if (freshData.length === 0 && filteredData.length > 0) {
-        console.log('⚠️ لا توجد بيانات جديدة بعد آخر تحديث');
-        // نعيد فارغ لإظهار رسالة "لا توجد بيانات حديثة"
-        return [];
+        console.log('⚠️ لا توجد بيانات حديثة كافية، نعرض جميع البيانات المتاحة');
+        // بدلاً من إرجاع فارغ، نعرض البيانات المتاحة مع علامة قديمة
+        return filteredData.map((gold: GoldPrice) => ({
+          ...gold,
+          _isStale: true
+        })) as GoldPrice[];
       }
 
       console.log('✅ تم جلب أسعار الذهب الحديثة بنجاح:', freshData.length, 'سجل');
+      freshData.forEach(g => console.log(`  📍 ${g.type}: شراء=${g.buy_price}, بيع=${g.sell_price}`));
+      
       return freshData as GoldPrice[];
     },
-    refetchInterval: false, // لا تحديث تلقائي - فقط يدوي
-    staleTime: 0, // البيانات تعتبر قديمة فوراً
-    gcTime: 0, // لا تخزين مؤقت
+    refetchInterval: false,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
   });
 };
 
