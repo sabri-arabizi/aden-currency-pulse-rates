@@ -26,23 +26,6 @@ const CurrencyTabs = ({
     error: ratesError
   } = useExchangeRates(selectedCity);
 
-  if (ratesLoading) {
-    return <div className="flex justify-center items-center h-40">
-      <div className="relative">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-yellow-500 border-t-transparent shadow-lg"></div>
-        <div className="absolute inset-0 rounded-full border-4 border-yellow-300 animate-ping"></div>
-      </div>
-    </div>;
-  }
-
-  if (ratesError) {
-    return <div className="text-center text-red-400 p-8 bg-red-50/10 rounded-2xl backdrop-blur-sm border border-red-200/20">
-      <div className="text-2xl mb-2">⚠️</div>
-      <div className="text-lg font-medium">{t('errorLoading', language)}</div>
-      <div className="text-sm opacity-75 mt-1">{t('tryAgain', language)}</div>
-    </div>;
-  }
-
   const getCityName = (city: string) => {
     if (language === 'en') {
       return city === 'صنعاء' ? 'Sanaa' : 'Aden';
