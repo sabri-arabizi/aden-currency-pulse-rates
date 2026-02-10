@@ -54,7 +54,6 @@ export const useGoldPrices = (selectedCity: string) => {
     queryKey: ['gold-prices', selectedCity],
     queryFn: async () => {
       console.log('🔍 جاري جلب أسعار الذهب للمدينة:', selectedCity);
-      console.log('⏰ وقت الجلب:', new Date().toISOString());
       
       const { data, error } = await supabase
         .from('gold_prices')
@@ -67,37 +66,29 @@ export const useGoldPrices = (selectedCity: string) => {
         throw error;
       }
 
-      console.log('📊 البيانات الخام من قاعدة البيانات:', data?.length, 'سجل');
-      
-      // تصفية الأنواع المطلوبة فقط
       const validTypes = ['عيار 18', 'عيار 21', 'عيار 22', 'جنيه ذهب'];
       const filteredData = (data || []).filter((gold: GoldPrice) => 
         validTypes.includes(gold.type)
       );
 
-      console.log('📋 البيانات بعد التصفية:', filteredData.length, 'سجل');
-      
-      // عرض جميع البيانات المصفاة مباشرة بدون تحقق معقد من الحداثة
-      // التحقق البسيط: هل البيانات محدثة خلال آخر 24 ساعة؟
       const twentyFourHoursAgo = Date.now() - (24 * 60 * 60 * 1000);
       
       const result = filteredData.map((gold: GoldPrice) => {
         const updateTime = new Date(gold.updated_at).getTime();
-        const isRecent = updateTime > twentyFourHoursAgo;
         return {
           ...gold,
-          _isStale: !isRecent
+          _isStale: updateTime <= twentyFourHoursAgo
         };
       });
 
-      console.log('✅ تم جلب أسعار الذهب بنجاح:', result.length, 'سجل');
-      result.forEach(g => console.log(`  📍 ${g.type}: شراء=${g.buy_price}, بيع=${g.sell_price}, حديث=${!g._isStale}`));
-      
+      console.log('✅ أسعار الذهب:', result.length, 'سجل');
       return result as GoldPrice[];
     },
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
     refetchInterval: false,
-    staleTime: 30 * 1000, // 30 ثانية
-    gcTime: 5 * 60 * 1000, // 5 دقائق
+    staleTime: 30 * 1000,
+    gcTime: 5 * 60 * 1000,
     refetchOnMount: true,
     refetchOnWindowFocus: false,
   });
