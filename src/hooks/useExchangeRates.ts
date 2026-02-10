@@ -47,6 +47,8 @@ export const useExchangeRates = (selectedCity: string) => {
 
       return sortedData || [];
     },
-    refetchInterval: 2 * 60 * 1000, // تحديث كل دقيقتين
+    retry: 3,
+    retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000),
+    refetchInterval: 2 * 60 * 1000,
   });
 };
