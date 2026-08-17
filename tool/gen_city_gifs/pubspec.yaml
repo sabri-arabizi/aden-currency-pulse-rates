@@ -1,0 +1,8 @@
+name: gen_city_gifs
+description: Generates animated GIF banners for Yemeni cities.
+publish_to: none
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  image: 4.8.0
