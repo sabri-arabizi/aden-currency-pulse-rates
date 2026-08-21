@@ -80,6 +80,33 @@ export type Database = {
         }
         Relationships: []
       }
+      city_slides: {
+        Row: {
+          created_at: string
+          id: number
+          image_url: string | null
+          name_ar: string
+          name_en: string
+          order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          name_ar: string
+          name_en: string
+          order: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          image_url?: string | null
+          name_ar?: string
+          name_en?: string
+          order?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

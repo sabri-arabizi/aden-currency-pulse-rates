@@ -12,6 +12,7 @@ const config: CapacitorConfig = {
     ? { url: process.env.CAPACITOR_SERVER_URL, cleartext: true }
     : undefined,
   plugins: {
+    UnityAds: {},
     SplashScreen: {
       launchShowDuration: 3000,
       backgroundColor: '#8B4513',

@@ -33,6 +33,14 @@ const Index = () => {
 
     </div>
 
+    {/* Admin shortcut */}
+    <Link to="/admin"
+      className="fixed top-3 left-3 z-30 flex items-center gap-1 bg-white/90 text-amber-800 text-xs font-bold px-2.5 py-1.5 rounded-full shadow-lg hover:bg-white transition"
+      title="لوحة تحكم المدن"
+    >
+      <span>⚙️</span><span className="hidden sm:inline">لوحة التحكم</span>
+    </Link>
+
     {/* Header */}
     <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 p-4 md:p-6 shadow-2xl relative z-10 my-0 px-[67px] py-0 mx-px">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 rounded-full p-4 bg-[#eac30d]/90">

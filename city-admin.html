@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لوحة تحكم المدن</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-sub: #94a3b8;
+      --primary: #3b82f6;
+      --success: #10b981;
+      --danger: #ef4444;
+      --accent: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px 12px; font-size: 13px; }
+    .container { max-width: 860px; margin: 0 auto; }
+    
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+      padding: 10px 14px; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .top-bar .title-group { display: flex; align-items: center; gap: 8px; }
+    .top-bar h1 { font-size: 16px; font-weight: 700; color: #fff; }
+    .top-bar .badge { background: #334155; color: #cbd5e1; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+    .top-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+    .btn {
+      border: 0; border-radius: 8px; padding: 7px 12px; cursor: pointer;
+      font-weight: 600; font-size: 12px; transition: all .15s ease;
+      display: inline-flex; align-items: center; gap: 4px; color: #fff; text-decoration: none;
+      user-select: none;
+    }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-green { background: var(--success); }
+    .btn-blue { background: var(--primary); }
+    .btn-red { background: var(--danger); }
+    .btn-amber { background: var(--accent); color: #0f172a; }
+    .btn-dark { background: #334155; color: #e2e8f0; }
+    .btn-sm { padding: 5px 9px; font-size: 11px; border-radius: 6px; }
+
+    .toast {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 600;
+      color: #fff; z-index: 1000; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: none; animation: fadeIn .2s ease; text-align: center; max-width: 90vw;
+    }
+    .toast.success { background: #059669; border: 1px solid #10b981; }
+    .toast.error { background: #dc2626; border: 1px solid #f87171; }
+    .toast.info { background: #2563eb; border: 1px solid #60a5fa; }
+
+    .city-list { display: flex; flex-direction: column; gap: 8px; }
+    
+    .city-card {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px;
+      padding: 8px 12px; display: grid; grid-template-columns: 110px 1fr auto;
+      gap: 10px; align-items: center; transition: all .2s;
+    }
+    @media (max-width: 640px) {
+      .city-card { grid-template-columns: 1fr; text-align: center; }
+    }
+    .city-card:hover { border-color: #475569; }
+    .city-card.dragover { border-color: var(--primary); background: #1e293b; outline: 2px dashed var(--primary); }
+    .city-card.active { border-color: var(--primary); }
+
+    .thumb-zone {
+      position: relative; width: 110px; height: 68px; border-radius: 8px;
+      overflow: hidden; background: #0f172a; border: 1px dashed #475569;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      margin: 0 auto; transition: border-color .2s;
+    }
+    .thumb-zone:hover { border-color: var(--primary); }
+    .thumb-zone img { width: 100%; height: 100%; object-fit: cover; }
+    .thumb-placeholder { font-size: 10px; color: var(--text-sub); text-align: center; padding: 4px; line-height: 1.2; }
+    .thumb-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,0.65);
+      display: flex; align-items: center; justify-content: center; opacity: 0;
+      transition: opacity .15s; color: #fff; font-size: 11px; font-weight: 600;
+    }
+    .thumb-zone:hover .thumb-overlay { opacity: 1; }
+
+    .fields-grid {
+      display: grid; grid-template-columns: 1.2fr 1fr 60px; gap: 8px; align-items: center;
+    }
+    @media (max-width: 640px) {
+      .fields-grid { grid-template-columns: 1fr; }
+    }
+    .input-group { display: flex; flex-direction: column; gap: 2px; }
+    .input-group label { font-size: 10px; color: var(--text-sub); font-weight: 600; }
+    .input-field {
+      background: #0f172a; border: 1px solid #334155; color: #fff;
+      padding: 6px 9px; border-radius: 6px; font-size: 13px; width: 100%;
+      outline: none; transition: border-color .15s;
+    }
+    .input-field:focus { border-color: var(--primary); background: #0b1324; }
+
+    .actions-col { display: flex; gap: 4px; justify-content: center; align-items: center; }
+
+    .loader-box { text-align: center; padding: 30px; color: var(--text-sub); font-size: 13px; }
+    .spinner {
+      width: 22px; height: 22px; border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite;
+      margin: 0 auto 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
+    .url-toggle { font-size: 10px; color: var(--primary); cursor: pointer; text-decoration: underline; margin-top: 2px; display: inline-block; }
+    .url-box { margin-top: 4px; display: none; }
+    .url-box.show { display: block; }
+    .hint-bar { font-size: 11px; color: var(--text-sub); text-align: center; margin-top: 10px; opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div class="title-group">
+        <h1>⚙️ لوحة تحكم المدن</h1>
+        <span class="badge" id="count-badge">0 مدينة</span>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-blue btn-sm" onclick="addRow()">➕ إضافة مدينة</button>
+        <button class="btn btn-green btn-sm" onclick="saveAllRows()">💾 حفظ الكل</button>
+        <button class="btn btn-dark btn-sm" onclick="load()">⟳ تحديث</button>
+        <a class="btn btn-amber btn-sm" href="https://supabase.com/dashboard/project/lgkexjmtzmcwfbkockwj" target="_blank">Supabase ↗</a>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <div id="loader" class="loader-box">
+      <div class="spinner"></div>
+      جاري تحميل المدن...
+    </div>
+    
+    <div id="city-list" class="city-list"></div>
+
+    <div class="hint-bar">
+      💡 اسحب واسقط الصورة على أي مدينة، أو اضغط الصورة، أو استخدم Ctrl+V للصق صورة من الحافظة.
+    </div>
+  </div>
+<script>
+  const SUPABASE_URL = 'https://lgkexjmtzmcwfbkockwj.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxna2V4am10em1jd2Zia29ja3dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1ODg1MTMsImV4cCI6MjA2MzE2NDUxM30.XN48krogsQVYmeM8c8WTD0Na6ftk-3ywwcif564r3w0';
+  const BUCKET = 'city-images';
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let rows = [], activeIdx = null, toastT = null;
+  const $ = (id) => document.getElementById(id);
+
+  function showToast(type, msg) {
+    const el = $('toast');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    el.style.display = 'block';
+    clearTimeout(toastT);
+    toastT = setTimeout(() => el.style.display = 'none', 3500);
+  }
+
+  const publicUrl = (path) => `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+
+  function autoTransliterate(ar) {
+    if (!ar) return '';
+    const map = {
+      'صنعاء': 'Sanaa', 'عدن': 'Aden', 'تعز': 'Taiz', 'الحديدة': 'Hodeidah',
+      'إب': 'Ibb', 'المكلا': 'Mukalla', 'مأرب': 'Marib', 'ذمار': 'Dhamar',
+      'شبوة': 'Shabwah', 'سيئون': 'Seiyun', 'عتق': 'Ataq', 'حضرموت': 'Hadhramaut'
+    };
+    const tr = ar.trim();
+    if (map[tr]) return map[tr];
+    return tr.replace(/أ|إ|آ|ء/g, 'a').replace(/ب/g, 'b').replace(/ت/g, 't')
+      .replace(/ث/g, 'th').replace(/ج/g, 'j').replace(/ح/g, 'h').replace(/خ/g, 'kh')
+      .replace(/د/g, 'd').replace(/ذ/g, 'dh').replace(/ر/g, 'r').replace(/ز/g, 'z')
+      .replace(/س/g, 's').replace(/ش/g, 'sh').replace(/ص/g, 's').replace(/ض/g, 'd')
+      .replace(/ط/g, 't').replace(/ظ/g, 'z').replace(/ع/g, 'a').replace(/غ/g, 'gh')
+      .replace(/ف/g, 'f').replace(/ق/g, 'q').replace(/ك/g, 'k').replace(/ل/g, 'l')
+      .replace(/م/g, 'm').replace(/ن/g, 'n').replace(/ه/g, 'h').replace(/و/g, 'w').replace(/ي/g, 'y');
+  }
+
+  async function load() {
+    $('loader').style.display = 'block';
+    $('city-list').innerHTML = '';
+    const { data, error } = await client.from('city_slides').select('*').order('order', { ascending: true });
+    $('loader').style.display = 'none';
+    if (error) return showToast('error', 'خطأ في جلب البيانات: ' + error.message);
+    rows = data || [];
+    render();
+  }
+
+  function render() {
+    const list = $('city-list');
+    list.innerHTML = '';
+    $('count-badge').textContent = `${rows.length} مدينة`;
+    if (!rows.length) {
+      list.innerHTML = '<div class="loader-box">لا توجد مدن. اضغط إضافة مدينة للبدء.</div>';
+      return;
+    }
+    rows.forEach((r, i) => {
+      const card = document.createElement('div');
+      card.className = 'city-card' + (activeIdx === i ? ' active' : '');
+      card.onclick = () => activeIdx = i;
+
+      card.ondragover = (e) => { e.preventDefault(); card.classList.add('dragover'); };
+      card.ondragleave = () => card.classList.remove('dragover');
+      card.ondrop = async (e) => {
+        e.preventDefault();
+        card.classList.remove('dragover');
+        if (e.dataTransfer.files?.[0]) await uploadImage(e.dataTransfer.files[0], i);
+      };
+
+      const hasImg = r.image_url && r.image_url.trim();
+      const thumb = hasImg 
+        ? `<img src="${r.image_url}" onerror="this.style.display='none';this.nextElementSibling.style.display='block';"><div class="thumb-placeholder" style="display:none;">صورة تالفة</div>`
+        : `<div class="thumb-placeholder">📸 اسحب/انقر هنا</div>`;
+
+      card.innerHTML = `
+        <div class="thumb-zone" onclick="triggerFile(${i})">
+          ${thumb}
+          <div class="thumb-overlay">📤 تغيير الصورة</div>
+          <input type="file" id="file-${i}" accept="image/*" style="display:none;" onchange="uploadImage(this.files[0], ${i})">
+        </div>
+        <div>
+          <div class="fields-grid">
+            <div class="input-group">
+              <label>الاسم بالعربية</label>
+              <input class="input-field input-field-ar" value="${escapeHtml(r.name_ar)}" oninput="changeNameAr(${i}, this.value)">
+            </div>
+            <div class="input-group">
+              <label>الاسم بالإنجليزية</label>
+              <input class="input-field" id="en-${i}" value="${escapeHtml(r.name_en)}" oninput="rows[${i}].name_en=this.value">
+            </div>
+            <div class="input-group">
+              <label>الترتيب</label>
+              <input class="input-field" type="number" value="${r.order ?? i}" oninput="rows[${i}].order=Number(this.value)">
+            </div>
+          </div>
+          <div>
+            <span class="url-toggle" onclick="toggleUrl(${i})">🔗 رابط الصورة المباشر</span>
+            <div class="url-box" id="url-box-${i}">
+              <input class="input-field" style="margin-top:3px;font-size:11px;" dir="ltr" value="${escapeHtml(r.image_url || '')}" placeholder="https://..." oninput="rows[${i}].image_url=this.value; render();">
+            </div>
+          </div>
+        </div>
+        <div class="actions-col">
+          <button class="btn btn-green btn-sm" onclick="saveRow(${i})">💾 حفظ</button>
+          <button class="btn btn-red btn-sm" onclick="deleteRow(${i})">🗑</button>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  const escapeHtml = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const triggerFile = (i) => { activeIdx = i; const el = $(`file-${i}`); if (el) el.click(); };
+  const toggleUrl = (i) => $(`url-box-${i}`)?.classList.toggle('show');
+
+  function changeNameAr(i, val) {
+    rows[i].name_ar = val;
+    const enInput = $(`en-${i}`);
+    if (enInput && (!rows[i].name_en || rows[i].name_en.trim() === '' || rows[i].isAutoEn)) {
+      const autoEn = autoTransliterate(val);
+      rows[i].name_en = autoEn;
+      rows[i].isAutoEn = true;
+      enInput.value = autoEn;
+    }
+  }
+
+  async function compressImage(file, maxW = 1000, q = 0.82) {
+    return new Promise((resolve, reject) => {
+      const img = new Image(), url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width: w, height: h } = img;
+        if (w > maxW) { h = Math.round((h * maxW) / w); w = maxW; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob((b) => {
+          if (!b) return reject(new Error('فشل ضغط الصورة'));
+          resolve(new File([b], file.name.replace(/\.[^/.]+$/, "") + ".jpg", { type: 'image/jpeg' }));
+        }, 'image/jpeg', q);
+      };
+      img.onerror = () => reject(new Error('فشل قراءة الملف'));
+      img.src = url;
+    });
+  }
+
+  async function uploadImage(file, i) {
+    if (!file) return;
+    showToast('info', '⏳ جاري معالجة ورفع الصورة...');
+    try {
+      let fToUpload = file;
+      try { fToUpload = await compressImage(file); } catch (e) { console.warn(e); }
+      const path = `uploads/city_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`;
+      const { data, error } = await client.storage.from(BUCKET).upload(path, fToUpload, { upsert: true, contentType: fToUpload.type });
+      if (!error && data) {
+        rows[i].image_url = publicUrl(path);
+        showToast('success', '✓ تم رفع الصورة بنجاح!');
+        render();
+        return;
+      }
+      console.warn('Storage error, falling back to base64:', error);
+      const r = new FileReader();
+      r.onload = (e) => {
+        rows[i].image_url = e.target.result;
+        showToast('success', '✓ تم حفظ الصورة بنجاح!');
+        render();
+      };
+      r.readAsDataURL(fToUpload);
+    } catch (err) {
+      showToast('error', 'خطأ أثناء الرفع: ' + err.message);
+    }
+  }
+
+  function addRow() {
+    const order = rows.length ? Math.max(...rows.map(r => r.order || 0)) + 1 : 0;
+    rows.unshift({ order, name_ar: '', name_en: '', image_url: null, isAutoEn: true });
+    activeIdx = 0;
+    render();
+    setTimeout(() => document.querySelector('.input-field-ar')?.focus(), 50);
+  }
+
+  async function saveRow(i) {
+    const r = rows[i];
+    if (!r.name_ar?.trim()) return showToast('error', 'يرجى إدخال اسم المدينة بالعربية');
+    if (!r.name_en?.trim()) r.name_en = autoTransliterate(r.name_ar);
+    showToast('info', '⏳ جاري الحفظ...');
+    const payload = { order: Number(r.order) || 0, name_ar: r.name_ar.trim(), name_en: r.name_en.trim(), image_url: r.image_url || null };
+    if (r.id) payload.id = r.id;
+    const { data, error } = await client.from('city_slides').upsert(payload, { onConflict: 'id' }).select();
+    if (error) return showToast('error', 'فشل الحفظ: ' + error.message);
+    if (data?.[0]) rows[i] = data[0];
+    showToast('success', '✓ تم حفظ ' + r.name_ar);
+    render();
+  }
+
+  async function saveAllRows() {
+    if (!rows.length) return;
+    showToast('info', '⏳ جاري حفظ جميع التغييرات...');
+    const payloads = rows.filter(r => r.name_ar?.trim()).map((r, i) => {
+      const obj = { order: Number(r.order) || i, name_ar: r.name_ar.trim(), name_en: (r.name_en?.trim() || autoTransliterate(r.name_ar)).trim(), image_url: r.image_url || null };
+      if (r.id) obj.id = r.id;
+      return obj;
+    });
+    if (!payloads.length) return showToast('error', 'لا توجد مدن صالحة للحفظ');
+    const { error } = await client.from('city_slides').upsert(payloads, { onConflict: 'id' });
+    if (error) return showToast('error', 'فشل الحفظ الجماعي: ' + error.message);
+    showToast('success', '✓ تم حفظ جميع المدن بنجاح!');
+    await load();
+  }
+
+  async function deleteRow(i) {
+    const r = rows[i], name = r.name_ar || 'هذه المدينة';
+    if (!confirm(`هل أنت متأكد من حذف «${name}»؟`)) return;
+    if (!r.id) { rows.splice(i, 1); render(); return; }
+    showToast('info', '⏳ جاري الحذف...');
+    const { error } = await client.from('city_slides').delete().eq('id', r.id);
+    if (error) return showToast('error', 'فشل الحذف: ' + error.message);
+    showToast('success', '✓ تم حذف ' + name);
+    await load();
+  }
+
+  document.addEventListener('paste', async (e) => {
+    const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.indexOf('image') === 0) {
+        const file = item.getAsFile();
+        if (file) {
+          const idx = activeIdx !== null ? activeIdx : 0;
+          if (rows[idx]) {
+            showToast('info', '📋 جاري معالجة الصورة الملصقة...');
+            await uploadImage(file, idx);
+          }
+        }
+      }
+    }
+  });
+
+  load();
+</script>
+</body>
+</html>
