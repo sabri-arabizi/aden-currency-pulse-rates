@@ -8,7 +8,7 @@ public class MainActivity extends BridgeActivity {
 
     private static final String TAG = "UnityAds_MainActivity";
     private String unityGameID = "5967793";
-    private boolean testMode = true;
+    private boolean testMode = false; // تأكد من ضبطه على false عند النشر
     private String adUnitIdInterstitial = "Interstitial_Android";
     private String adUnitIdRewarded = "Rewarded_Android";
 
