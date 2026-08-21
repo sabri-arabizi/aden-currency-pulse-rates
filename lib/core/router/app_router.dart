@@ -3,11 +3,17 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/contact/presentation/contact_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/splash/presentation/splash_screen.dart';
 
-/// موجّه التطبيق: مسارا `/` و `/contact` مع صفحة 404 احتياطية.
+/// موجّه التطبيق: شاشة البداية ثم الرئيسية، مع صفحة 404 احتياطية.
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/splash',
   routes: [
+    GoRoute(
+      path: '/splash',
+      name: 'splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
     GoRoute(
       path: '/',
       name: 'home',

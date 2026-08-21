@@ -9,6 +9,7 @@ import '../../../../core/l10n/translations.dart';
 import '../../../converter/presentation/widgets/currency_converter.dart';
 import '../../../exchange_rates/presentation/providers/exchange_rates_providers.dart';
 import '../../../exchange_rates/presentation/widgets/currency_card.dart';
+import '../../../exchange_rates/domain/entities/exchange_rate.dart';
 import '../../../gold_prices/presentation/widgets/gold_prices_section.dart';
 import '../../../refresh/presentation/widgets/manual_refresh_button.dart';
 
@@ -34,6 +35,7 @@ class _CurrencyTabsState extends ConsumerState<CurrencyTabs> {
   Widget build(BuildContext context) {
     final language = widget.language;
     final isArabic = language == Language.ar;
+    final ratesAsync = ref.watch(exchangeRatesProvider(widget.selectedCity));
 
     return Container(
       color: const Color(0x8C733F27), // bg-[#733f27]/55
@@ -95,7 +97,7 @@ class _CurrencyTabsState extends ConsumerState<CurrencyTabs> {
           ),
 
           const SizedBox(height: 16),
-          _buildUpdateStatus(isArabic),
+          _buildUpdateStatus(isArabic, ratesAsync),
         ],
       ),
     );
@@ -360,9 +362,20 @@ class _CurrencyTabsState extends ConsumerState<CurrencyTabs> {
   }
 
   /// لوحة حالة التحديث السفلية (المصادر وآخر تحديث).
-  Widget _buildUpdateStatus(bool isArabic) {
-    final now = DateFormat('MM/dd/yyyy, hh:mm a', 'en_US')
-        .format(DateTime.now());
+  ///
+  /// يعرض التاريخ الكامل **مرة واحدة فقط** لآخر تحديث فعلي للبيانات (أحدث
+  /// updatedAt بين العملات المحمّلة) بدلاً من التكرار تحت كل بطاقة عملة.
+  Widget _buildUpdateStatus(
+      bool isArabic, AsyncValue<List<ExchangeRate>> ratesAsync) {
+    final rates = ratesAsync.value ?? const <ExchangeRate>[];
+    DateTime? latest;
+    for (final rate in rates) {
+      if (latest == null || rate.updatedAt.isAfter(latest)) {
+        latest = rate.updatedAt;
+      }
+    }
+    final lastUpdateText = DateFormat('MM/dd/yyyy, hh:mm a', 'en_US')
+        .format(latest ?? DateTime.now());
     final isSanaa = widget.selectedCity == AppConstants.citySanaa;
 
     return Container(
@@ -375,7 +388,7 @@ class _CurrencyTabsState extends ConsumerState<CurrencyTabs> {
       child: Column(
         children: [
           Text(
-            '📊 ${translate('manualUpdate', widget.language)} - ${translate('lastUpdate', widget.language)}: $now',
+            '📊 ${translate('manualUpdate', widget.language)} - ${translate('lastUpdate', widget.language)}: $lastUpdateText',
             textAlign: TextAlign.center,
             style: const TextStyle(
                 color: Colors.white70,

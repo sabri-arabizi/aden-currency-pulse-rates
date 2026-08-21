@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../core/l10n/language_controller.dart';
 import '../../../../core/utils/currency_formatter.dart';
@@ -38,10 +37,6 @@ class CurrencyCard extends StatelessWidget {
     final timeAgoText = isAden
         ? adenTimeAgo(rate.updatedAt)
         : sanaaTimeAgo(rate.updatedAt);
-    final dateText = DateFormat(
-      'dd/MM/yyyy, hh:mm a',
-      isArabic ? 'ar' : 'en_US',
-    ).format(rate.updatedAt);
 
     return Container(
       decoration: BoxDecoration(
@@ -126,12 +121,6 @@ class CurrencyCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 10, color: Color(0xFF6B7280)),
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            dateText,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 10, color: Color(0xFF9CA3AF)),
           ),
         ],
       ),
