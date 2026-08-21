@@ -1,7 +1,7 @@
 name: aden_currency_flutter
 description: "Aden Currency Pulse Rates - Yemen Exchange Rates App"
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.0+4
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
@@ -25,8 +25,29 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
   assets:
     - assets/images/
+
+# إعدادات توليد أيقونة التطبيق من ico.png
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/ico.png"
+  remove_alpha_ios: true
+  min_sdk_android: 21
+  web:
+    generate: true
+    image_path: "assets/images/ico.png"
+    background_color: "#FFFFFF"
+    theme_color: "#FFFFFF"
+  windows:
+    generate: true
+    image_path: "assets/images/ico.png"
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: "assets/images/ico.png"

@@ -1,11 +1,26 @@
 
 -- تحديث الجدولة المحسنة لتشغيل كل ساعة مع دوال محسنة
+-- (نسخة آمنة التكرار: تحذف أي جدولة سابقة قديمة أو حديثة إن وُجدت ثم تعيد الإنشاء)
 
--- حذف الجدولة القديمة إن وجدت
-SELECT cron.unschedule('update-sar-usd-prices-every-30min');
-SELECT cron.unschedule('update-aed-prices-every-30min-offset');
-SELECT cron.unschedule('update-egp-prices-every-30min-offset');
-SELECT cron.unschedule('scheduled-sar-update-hourly');
+DO $$
+DECLARE
+  target_names text[] := ARRAY[
+    'update-sar-usd-prices-every-30min',
+    'update-aed-prices-every-30min-offset',
+    'update-egp-prices-every-30min-offset',
+    'scheduled-sar-update-hourly',
+    'update-sar-usd-enhanced-hourly',
+    'update-aed-prices-hourly-offset',
+    'update-egp-enhanced-hourly-offset',
+    'update-gold-prices-hourly-offset'
+  ];
+  j record;
+BEGIN
+  FOR j IN SELECT jobid, jobname FROM cron.job WHERE jobname = ANY(target_names) LOOP
+    PERFORM cron.unschedule(j.jobid);
+    RAISE NOTICE 'Unscheduled job: %', j.jobname;
+  END LOOP;
+END $$;
 
 -- إضافة جدولة محسنة لتحديث أسعار الريال السعودي والدولار كل ساعة
 SELECT cron.schedule(
@@ -33,7 +48,7 @@ SELECT cron.schedule(
   $$
 );
 
--- إضافة جدولة لتحديث أسعار الجنيه المصري المحسن كل ساعة (بتأخير 30 دقيقة)
+-- إضافة جدولة لتحديث أسعار الجنيه المصري وفقاً لسوق عدن كل ساعة (بتأخير 30 دقيقة)
 SELECT cron.schedule(
   'update-egp-enhanced-hourly-offset',
   '30 * * * *', -- في الدقيقة 30 من كل ساعة
@@ -41,7 +56,7 @@ SELECT cron.schedule(
   SELECT net.http_post(
     url := 'https://lgkexjmtzmcwfbkockwj.supabase.co/functions/v1/update-egp-from-2dec',
     headers := '{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxna2V4am10em1jd2Zia29ja3dqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1ODg1MTMsImV4cCI6MjA2MzE2NDUxM30.XN48krogsQVYmeM8c8WTD0Na6ftk-3ywwcif564r3w0"}'::jsonb,
-    body := '{"scheduled": true, "source": "2dec.net", "version": "2.0-enhanced"}'::jsonb
+    body := '{"scheduled": true, "source": "khbr.me (Aden)", "version": "3.0-aden-market"}'::jsonb
   );
   $$
 );

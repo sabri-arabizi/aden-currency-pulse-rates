@@ -7,6 +7,7 @@ import 'package:aden_currency_flutter/features/gold_prices/data/repositories/gol
 import 'package:aden_currency_flutter/features/gold_prices/domain/entities/gold_price.dart';
 import 'package:aden_currency_flutter/features/gold_prices/domain/repositories/gold_prices_repository.dart';
 import 'package:aden_currency_flutter/features/home/presentation/providers/city_slides_provider.dart';
+import 'package:aden_currency_flutter/features/splash/presentation/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -82,6 +83,15 @@ void main() {
     );
     // لا نستخدم pumpAndSettle هنا لأن سلايدر المدن يعمل تلقائياً (مؤقّت دوري)،
     // فنعتمد pumps بمدد ثابتة ثم نتخلص من الشجرة في النهاية لإلغاء المؤقّت.
+    await tester.pump();
+
+    // شاشة البداية (Splash) تظهر أولاً لمدة 3 ثوانٍ وتعرض صورة الشاشة
+    // مع حلقة التحميل الدوّارة.
+    expect(find.byType(Image), findsOneWidget);
+    expect(find.byType(RotationTransition), findsWidgets);
+
+    // تجاوز مدة الـ Splash (3 ثوانٍ) ثم الانتقال للرئيسية.
+    await tester.pump(SplashScreen.duration);
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 

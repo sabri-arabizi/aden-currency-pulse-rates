@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -6,6 +5,17 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
+
+// دالة تنظيف الأرقام: إزالة الفواصل والمسافات ودعم الكسور العربية
+const cleanNumber = (numStr: string): number => {
+  if (!numStr) return 0;
+  const cleaned = numStr
+    .replace(/[,،\s]/g, '')
+    .replace(/٫/g, '.')
+    .trim();
+  const number = parseFloat(cleaned);
+  return isNaN(number) ? 0 : number;
+};
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -18,19 +28,14 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('🔥 بدء تحديث أسعار الجنيه المصري من 2dec.net')
+    console.log('🔥 بدء تحديث سعر الجنيه المصري وفقاً لسوق عدن (khbr.me)')
 
-    // جلب البيانات من الموقع الصحيح
-    const response = await fetch('https://2dec.net/rate.html', {
+    // المصدر موثوق: موقع وكالة خبر — يعرض قسماً مستقلاً لأسعار مدينة عدن
+    const response = await fetch('https://www.khbr.me/rate.html', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'ar,en-US;q=0.9,en;q=0.8',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Cache-Control': 'no-cache',
-        'DNT': '1',
-        'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1'
       }
     })
 
@@ -39,212 +44,106 @@ serve(async (req) => {
     }
 
     const html = await response.text()
-    console.log('✅ تم جلب HTML من 2dec.net بنجاح')
+    console.log('✅ تم جلب HTML من khbr.me')
 
-    // دالة تنظيف الأرقام
-    const cleanNumber = (numStr: string): number => {
-      if (!numStr) return 0;
-      const cleaned = numStr.replace(/,/g, '').replace(/٫/g, '.').trim();
-      return parseFloat(cleaned);
-    };
+    // تقسيم الصفحة إلى أقسام المدن — كل قسم داخل <div class="rates-section">
+    const sections = html.split(/<div class="rates-section">/i).slice(1)
 
-    // البحث عن قسم عدن بطرق متعددة
-    let adenSection = null;
-    
-    // طريقة 1: البحث بـ "عدن"
-    let adenSectionMatch = html.match(/<td[^>]*>\s*عدن\s*<span[^>]*>[\s\S]*?<\/table>/i);
-    if (!adenSectionMatch) {
-      // طريقة 2: البحث بـ "aden"
-      adenSectionMatch = html.match(/<td[^>]*>\s*aden\s*<span[^>]*>[\s\S]*?<\/table>/i);
-    }
-    if (!adenSectionMatch) {
-      // طريقة 3: البحث في أي جدول يحتوي على أسعار EGP
-      adenSectionMatch = html.match(/جنيه\s*مصري[\s\S]*?<\/tr>/i);
-    }
-    
-    if (!adenSectionMatch) {
-      console.log('Could not find Aden section in HTML, trying fallback prices...');
-      // استخدام أسعار افتراضية بناءً على أسعار عدن الحالية
-      const fallbackBuyPrice = 50;
-      const fallbackSellPrice = 52;
+    // اختيار قسم مدينة عدن المباشر (<h2 class="city-name">عدن</h2>)
+    // يلي قسم صنعاء مباشرةً، لذا نختار القسم الذي يحوي ترويسة عدن.
+    const adenSection = sections.find(
+      (seg) => /<h2 class="city-name">عدن<\/h2>/i.test(seg)
+    ) || sections[sections.length - 1]
 
-      
-      // تحديث بالأسعار الافتراضية
-      for (const city of ['عدن', 'صنعاء']) {
-        const { error } = await supabaseClient
-          .from('exchange_rates')
-          .update({
-            buy_price: fallbackBuyPrice,
-            sell_price: fallbackSellPrice,
-            updated_at: new Date().toISOString()
-          })
-          .eq('currency_code', 'EGP')
-          .eq('city', city);
-
-        if (!error) {
-          console.log(`✅ تم تحديث EGP بأسعار افتراضية لـ ${city}`);
-        }
-      }
-
+    if (!adenSection) {
+      console.log('⚠️ لم يتم العثور على قسم عدن في صفحة khbr.me')
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'تم تحديث أسعار الجنيه المصري بأسعار افتراضية',
-          updates: ['EGP-عدن', 'EGP-صنعاء'],
-          prices: { buy: fallbackBuyPrice, sell: fallbackSellPrice },
-          source: '2dec.net (fallback)',
+        JSON.stringify({
+          success: false,
+          message: 'لم يتم العثور على قسم عدن',
+          source: 'khbr.me',
           timestamp: new Date().toISOString()
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      )
     }
 
-    adenSection = adenSectionMatch[0];
-    console.log('Found Aden section, searching for EGP prices...');
+    console.log('📍 تم العثور على قسم عدن، جارٍ استخراج سعر الجنيه المصري...')
 
-    // البحث عن سطر الجنيه المصري في قسم عدن
-    const egpRowMatch = adenSection.match(/<tr>[\s\S]*?جنيه مصري[\s\S]*?<\/tr>/i) ||
-                       html.match(/جنيه\s*مصري[\s\S]*?<\/tr>/i);
-    
-    if (!egpRowMatch) {
-      console.log('Could not find EGP row, using fallback prices');
-      // استخدام أسعار افتراضية
-      const fallbackBuyPrice = 50;
-      const fallbackSellPrice = 52;
+    // استخراج سطر الجنيه المصري من قسم عدن
+    // بنية الجدول: اسم العملة ← <span class="price-value"> (سعر البيع) ← الاتجاه ← <span class="price-value"> (سعر الشراء)
+    const egpRow = adenSection.match(
+      /<span class="currency-name">جنيه مصري<\/span>[\s\S]*?<span class="price-value[^"]*">\s*([\d.,]+)\s*<\/span>[\s\S]*?<span class="price-value[^"]*">\s*([\d.,]+)\s*<\/span>/i
+    )
 
-      for (const city of ['عدن', 'صنعاء']) {
-        await supabaseClient
-          .from('exchange_rates')
-          .update({
-            buy_price: fallbackBuyPrice,
-            sell_price: fallbackSellPrice,
-            updated_at: new Date().toISOString()
-          })
-          .eq('currency_code', 'EGP')
-          .eq('city', city);
-      }
-
+    if (!egpRow) {
+      console.log('⚠️ لم يتم العثور على سعر الجنيه المصري في قسم عدن')
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'تم تحديث أسعار الجنيه المصري بأسعار افتراضية',
-          updates: ['EGP-عدن', 'EGP-صنعاء'],
-          prices: { buy: fallbackBuyPrice, sell: fallbackSellPrice },
-          source: '2dec.net (fallback)',
+        JSON.stringify({
+          success: false,
+          message: 'لم يتم العثور على سعر الجنيه المصري في قسم عدن',
+          source: 'khbr.me',
           timestamp: new Date().toISOString()
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      )
     }
 
-    const egpRow = egpRowMatch[0];
-    console.log('Found EGP row:', egpRow.substring(0, 200) + '...');
+    const sellPrice = cleanNumber(egpRow[1])
+    const buyPrice = cleanNumber(egpRow[2])
 
-    // استخراج أسعار البيع والشراء
-    const priceMatches = egpRow.match(/<span[^>]*>([0-9,\.]+)<\/span>/g) ||
-                        egpRow.match(/(\d+\.?\d*)/g);
-                        
-    if (!priceMatches || priceMatches.length < 2) {
-      console.log('Could not find price spans in EGP row, using fallback');
-      const fallbackBuyPrice = 50;
-      const fallbackSellPrice = 52;
+    // في جدول khbr.me العمود الأول هو "سعر البيع" والثاني "سعر الشراء"،
+    // لكن نضمن منطقياً أن البيع هو الأعلى وأن الشراء هو الأدنى.
+    const finalSell = Math.max(sellPrice, buyPrice)
+    const finalBuy = Math.min(sellPrice, buyPrice)
 
-      for (const city of ['عدن', 'صنعاء']) {
-        await supabaseClient
-          .from('exchange_rates')
-          .update({
-            buy_price: fallbackBuyPrice,
-            sell_price: fallbackSellPrice,
-            updated_at: new Date().toISOString()
-          })
-          .eq('currency_code', 'EGP')
-          .eq('city', city);
-      }
+    console.log(`💰 سعر الجنيه المصري في عدن - شراء: ${finalBuy}, بيع: ${finalSell}`)
 
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          message: 'تم تحديث أسعار الجنيه المصري بأسعار افتراضية',
-          updates: ['EGP-عدن', 'EGP-صنعاء'],
-          prices: { buy: fallbackBuyPrice, sell: fallbackSellPrice },
-          source: '2dec.net (fallback)',
-          timestamp: new Date().toISOString()
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!(finalBuy > 0 && finalSell > 0 && finalSell < 200 && finalBuy < 200)) {
+      throw new Error('الأسعار المستخرجة غير صحيحة أو خارج النطاق المتوقع')
     }
 
-    // استخراج الأرقام من spans
-    const prices = priceMatches.map(match => {
-      const priceMatch = match.match ? match.match(/([0-9,\.]+)/) : [null, match];
-      return priceMatch && priceMatch[1] ? cleanNumber(priceMatch[1]) : null;
-    }).filter(price => price !== null && price > 0);
+    // تحديث سعر الجنيه المصري لجميع المدن وفقاً لسوق مدينة عدن
+    // (بحيث يتطابق سعر الجنبيه المصري المعروض مع سعره في سوق عدن)
+    const { error } = await supabaseClient
+      .from('exchange_rates')
+      .update({
+        buy_price: finalBuy,
+        sell_price: finalSell,
+        updated_at: new Date().toISOString()
+      })
+      .eq('currency_code', 'EGP')
 
-    if (prices.length >= 2) {
-      // في جدول 2dec: العمود الأول هو البيع، والثاني هو الشراء
-      const sellPrice = Math.round(prices[0] || 0);  // بيع - إزالة الجزء العشري
-      const buyPrice = Math.round(prices[1] || 0);   // شراء - إزالة الجزء العشري
-      
-      console.log(`Extracted EGP prices - Sell: ${sellPrice}, Buy: ${buyPrice}`);
-      
-      if (sellPrice && buyPrice && sellPrice > 0 && buyPrice > 0 && sellPrice < 200 && buyPrice < 200) {
-
-        // تحديث الجنيه المصري لكلا المدينتين
-        const updates = [];
-        
-        for (const city of ['عدن', 'صنعاء']) {
-          const { error } = await supabaseClient
-            .from('exchange_rates')
-            .update({
-              buy_price: buyPrice,
-              sell_price: sellPrice,
-              updated_at: new Date().toISOString()
-            })
-            .eq('currency_code', 'EGP')
-            .eq('city', city);
-
-          if (error) {
-            console.error(`❌ خطأ في تحديث EGP لـ ${city}:`, error);
-          } else {
-            console.log(`✅ تم تحديث EGP بنجاح لـ ${city}`);
-            updates.push(`EGP-${city}`);
-          }
-        }
-
-        return new Response(
-          JSON.stringify({ 
-            success: true, 
-            message: 'تم تحديث أسعار الجنيه المصري بنجاح من 2dec.net',
-            updates: updates,
-            prices: { buy: buyPrice, sell: sellPrice },
-            source: '2dec.net',
-            timestamp: new Date().toISOString()
-          }),
-          { 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      } else {
-        throw new Error('الأسعار المستخرجة غير صحيحة');
-      }
-    } else {
-      throw new Error('لم يتم العثور على أسعار كافية');
+    if (error) {
+      throw new Error(`فشل تحديث سعر الجنيه المصري: ${error.message}`)
     }
 
-  } catch (error) {
-    console.error('❌ خطأ في تحديث أسعار EGP المحسن من 2dec.net:', error)
+    console.log('✅ تم تحديث سعر الجنيه المصري لجميع المدن وفقاً لسوق عدن بنجاح')
+
     return new Response(
-      JSON.stringify({ 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Unknown error',
-        source: '2dec.net',
-        version: '2.0 - Enhanced',
+      JSON.stringify({
+        success: true,
+        message: 'تم تحديث سعر الجنيه المصري لجميع المدن وفقاً لسوق عدن',
+        updates: ['EGP - جميع المدن (سوق عدن)'],
+        prices: { buy: finalBuy, sell: finalSell },
+        source: 'khbr.me (Aden)',
+        version: '4.0 - Aden Market (All cities)',
         timestamp: new Date().toISOString()
       }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500
-      }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+
+  } catch (error) {
+    console.error('❌ خطأ في تحديث سعر الجنيه المصري (عدن):', error)
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        source: 'khbr.me (Aden)',
+        version: '3.0 - Aden Market',
+        timestamp: new Date().toISOString()
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }
 })
